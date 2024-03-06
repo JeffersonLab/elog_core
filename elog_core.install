@@ -1,0 +1,40 @@
+<?php
+
+function elog_user_install() {
+  _elog_core_install_user_fields();
+}
+
+/**
+ * Rebuild user entity form display for our fields.
+ *
+ * @return void
+ * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+ * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+ */
+function _elog_core_install_user_fields() {
+
+  $storage = \Drupal::entityTypeManager()->getStorage('entity_form_display');
+  $user_form_display = $storage->load('user.user.default');
+  if (!$user_form_display) {
+    $user_form_display = $storage->create([
+      'targetEntityType' => 'user',
+      'bundle' => 'user',
+      'mode' => 'default',
+      'status' => TRUE,
+    ]);
+  }
+  $user_form_display
+    ->setComponent('field_first_name', [
+      'type' => 'string_textfield',
+      'weight' => 4,
+      'settings' => ['display_label' => TRUE],
+      'hidden' => FALSE,
+    ])
+    ->setComponent('field_last_name', [
+      'type' => 'string_textfield',
+      'weight' => 5,
+      'settings' => ['display_label' => TRUE],
+      'hidden' => FALSE,
+    ])
+    ->save();
+}

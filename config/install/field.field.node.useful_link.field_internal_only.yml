@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_internal_only
+    - node.type.useful_link
+id: node.useful_link.field_internal_only
+field_name: field_internal_only
+entity_type: node
+bundle: useful_link
+label: 'Internal Only'
+description: 'When set to Yes, the link will not be offered to users whose IP address is not on the local network'
+required: true
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

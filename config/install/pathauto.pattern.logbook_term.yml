@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - taxonomy
+id: logbook_term
+label: 'Logbook Term'
+type: 'canonical_entities:taxonomy_term'
+pattern: '/book/[term:name]'
+selection_criteria:
+  3cf0c3f7-a181-4df9-aa63-60f7a5e1d480:
+    id: 'entity_bundle:taxonomy_term'
+    negate: false
+    uuid: 3cf0c3f7-a181-4df9-aa63-60f7a5e1d480
+    context_mapping:
+      taxonomy_term: taxonomy_term
+    bundles:
+      logbooks: logbooks
+selection_logic: and
+weight: -5
+relationships: {  }

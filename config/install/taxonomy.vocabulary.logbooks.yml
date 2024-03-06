@@ -1,0 +1,7 @@
+langcode: en
+status: true
+dependencies: {  }
+name: Logbooks
+vid: logbooks
+description: 'Logbook Names'
+weight: 0

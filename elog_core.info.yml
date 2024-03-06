@@ -1,0 +1,23 @@
+name: elog_core
+type: module
+description: Core Configuration required by Electronic Logbook Modules
+core_version_requirement: ^10
+package: Elog
+# We need to modify the User entity provided by Drupal Core
+dependencies:
+  - core:user
+  - core:block
+  - core:comment
+  - core:field
+  - core:filter
+  - core:mysql
+  - core:node
+  - core:taxonomy
+  - field_types:file
+  - field_types:image
+  - field_types:link
+  - field_types:options
+  - field_types:text
+  - menu:taxonomy_menu
+  - other:exclude_node_title
+  - other:pathauto

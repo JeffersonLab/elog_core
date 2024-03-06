@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main-menu
+    parent: 'main-menu:0:'
+name: 'Useful Link'
+type: useful_link
+description: 'A link to be displayed as a contextual menu item for one or more logbooks'
+help: 'Useful links are provided in a sidebar to users viewing a logbook.  They provide quick access to content relevant to the audience of the logbook.'
+new_revision: false
+preview_mode: 1
+display_submitted: false
