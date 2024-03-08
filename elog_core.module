@@ -1,0 +1,25 @@
+<?php
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * {@inheritdoc}
+ */
+function elog_core_entity_presave(EntityInterface $entity) {
+  if ($entity->getEntityTypeId() == 'node' && $entity->getType() == 'logentry') {
+    $ls = Drupal::service('log_number.service');
+    $log_number = $ls->nextLogNumber();
+    dpm($entity->field_lognumber->first()->value);
+    if ($entity->isNew()){
+      if ($entity->field_lognumber) {
+        $existing = $entity->field_lognumber->first()->value;
+        if ($existing < 1) {
+          $entity->set('field_lognumber', $log_number);
+        }
+      }
+    }
+
+
+  }
+}

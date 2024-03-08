@@ -1,0 +1,36 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_body
+    - filter.format.basic_html
+    - filter.format.elog_text
+    - filter.format.full_html
+    - filter.format.plain_text
+    - filter.format.restricted_html
+    - filter.format.user_wysiwyg
+    - node.type.logentry
+  module:
+    - text
+  enforced:
+    module:
+      - elog_core
+id: node.logentry.field_body
+field_name: field_body
+entity_type: node
+bundle: logentry
+label: Body
+description: 'The informational body of the entry'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - basic_html
+    - elog_text
+    - user_wysiwyg
+    - restricted_html
+    - full_html
+    - plain_text
+field_type: text_long

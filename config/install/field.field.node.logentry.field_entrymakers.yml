@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_entrymakers
+    - node.type.logentry
+  enforced:
+    module:
+      - elog_core
+id: node.logentry.field_entrymakers
+field_name: field_entrymakers
+entity_type: node
+bundle: logentry
+label: 'Entry Makers'
+description: 'A list of usernames (separated by commas) of individuals in addition to the submitter who should be associated with authorship of the entry.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

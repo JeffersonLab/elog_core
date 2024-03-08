@@ -4,6 +4,9 @@ dependencies:
   module:
     - link
     - node
+  enforced:
+    module:
+      - elog_core
 id: node.field_link
 field_name: field_link
 entity_type: node

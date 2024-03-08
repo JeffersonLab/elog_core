@@ -6,11 +6,13 @@ dependencies:
   enforced:
     module:
       - elog_core
-id: node.field_internal_only
-field_name: field_internal_only
+id: node.field_lognumber
+field_name: field_lognumber
 entity_type: node
-type: boolean
-settings: {  }
+type: integer
+settings:
+  unsigned: false
+  size: normal
 module: core
 locked: false
 cardinality: 1

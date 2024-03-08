@@ -3,17 +3,19 @@ status: true
 dependencies:
   module:
     - node
+    - taxonomy
   enforced:
     module:
       - elog_core
-id: node.field_internal_only
-field_name: field_internal_only
+id: node.field_tags
+field_name: field_tags
 entity_type: node
-type: boolean
-settings: {  }
+type: entity_reference
+settings:
+  target_type: taxonomy_term
 module: core
 locked: false
-cardinality: 1
+cardinality: -1
 translatable: true
 indexes: {  }
 persist_with_no_fields: false

@@ -38,3 +38,31 @@ function _elog_core_install_user_fields() {
     ])
     ->save();
 }
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ *
+ * @see hook_schema()
+ *
+ * @ingroup dbtng_example
+ */
+function elog_core_schema() {
+  // We will simulate an Oracle sequence with this table to work around the fact
+  // that mysql does not allow multiple auto-incremented columns in a table or
+  // autoincrement columns that are not keys.
+  $schema['lognumber_sequence'] = [
+    'description' => 'Generates unique log number values.',
+    'fields' => [
+      'log_number' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique Log Number.',
+      ],
+    ],
+    'primary key' => ['log_number'],
+  ];
+
+  return $schema;
+}

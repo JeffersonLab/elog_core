@@ -3,15 +3,16 @@ status: true
 dependencies:
   module:
     - node
+    - text
   enforced:
     module:
       - elog_core
-id: node.field_internal_only
-field_name: field_internal_only
+id: node.field_body
+field_name: field_body
 entity_type: node
-type: boolean
+type: text_long
 settings: {  }
-module: core
+module: text
 locked: false
 cardinality: 1
 translatable: true

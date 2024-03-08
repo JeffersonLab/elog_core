@@ -1,0 +1,59 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_image
+    - node.type.logentry
+  module:
+    - filefield_paths
+    - image
+  enforced:
+    module:
+      - elog_core
+third_party_settings:
+  filefield_paths:
+    enabled: true
+    file_path:
+      value: '[node:created:custom:Y]/[node:created:custom:m]/[node:field_lognumber:value]'
+      options:
+        slashes: false
+        pathauto: false
+        transliterate: false
+    file_name:
+      value: '[file:ffp-name-only-original].[file:ffp-extension-original]'
+      options:
+        slashes: false
+        pathauto: false
+        transliterate: false
+    redirect: false
+    retroactive_update: false
+    active_updating: false
+id: node.logentry.field_image
+field_name: field_image
+entity_type: node
+bundle: logentry
+label: Pictures
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'bmp png gif jpg jpeg webp'
+  max_filesize: '16 MB'
+  max_resolution: 4096x4096
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: false
+  title_field: true
+  title_field_required: false
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

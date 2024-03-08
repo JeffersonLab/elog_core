@@ -17,7 +17,10 @@ dependencies:
   - field_types:image
   - field_types:link
   - field_types:options
+  - field_types:serial
   - field_types:text
+  - fields:filefield_paths
+  - filter:htmlawed
   - menu:taxonomy_menu
   - other:exclude_node_title
   - other:pathauto

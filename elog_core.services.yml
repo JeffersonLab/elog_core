@@ -1,0 +1,5 @@
+services:
+  log_number.service:
+    class: Drupal\elog_core\LogNumberService
+    arguments:
+      - '@logger.factory'

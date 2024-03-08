@@ -4,6 +4,9 @@ dependencies:
   module:
     - node
     - taxonomy
+  enforced:
+    module:
+      - elog_core
 id: node.field_logbook
 field_name: field_logbook
 entity_type: node

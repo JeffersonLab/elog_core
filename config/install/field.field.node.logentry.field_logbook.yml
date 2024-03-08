@@ -3,17 +3,17 @@ status: true
 dependencies:
   config:
     - field.storage.node.field_logbook
-    - node.type.useful_link
+    - node.type.logentry
     - taxonomy.vocabulary.logbooks
   enforced:
     module:
       - elog_core
-id: node.useful_link.field_logbook
+id: node.logentry.field_logbook
 field_name: field_logbook
 entity_type: node
-bundle: useful_link
+bundle: logentry
 label: Logbook
-description: 'Identifies the logbooks to which the useful link is relevant'
+description: 'Identifies the logbooks to which the entry is relevant'
 required: true
 translatable: false
 default_value: {  }

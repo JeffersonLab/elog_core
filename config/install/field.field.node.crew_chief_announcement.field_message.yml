@@ -7,6 +7,9 @@ dependencies:
     - node.type.crew_chief_announcement
   module:
     - text
+  enforced:
+    module:
+      - elog_core
 id: node.crew_chief_announcement.field_message
 field_name: field_message
 entity_type: node

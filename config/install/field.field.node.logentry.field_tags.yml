@@ -2,19 +2,19 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_logbook
-    - node.type.useful_link
-    - taxonomy.vocabulary.logbooks
+    - field.storage.node.field_tags
+    - node.type.logentry
+    - taxonomy.vocabulary.tags
   enforced:
     module:
       - elog_core
-id: node.useful_link.field_logbook
-field_name: field_logbook
+id: node.logentry.field_tags
+field_name: field_tags
 entity_type: node
-bundle: useful_link
-label: Logbook
-description: 'Identifies the logbooks to which the useful link is relevant'
-required: true
+bundle: logentry
+label: Tags
+description: 'Assign descriptive tags to an entry'
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
@@ -22,7 +22,7 @@ settings:
   handler: 'default:taxonomy_term'
   handler_settings:
     target_bundles:
-      logbooks: logbooks
+      tags: tags
     sort:
       field: name
       direction: asc
