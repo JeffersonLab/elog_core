@@ -1,0 +1,48 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_attach
+    - node.type.logentry
+  module:
+    - file
+    - filefield_paths
+  enforced:
+    module:
+      - elog_core
+third_party_settings:
+  filefield_paths:
+    enabled: true
+    file_path:
+      value: '[node:created:custom:Y]/[node:created:custom:m]/[node:field_lognumber:value]'
+      options:
+        slashes: false
+        pathauto: false
+        transliterate: false
+    file_name:
+      value: '[file:ffp-name-only-original].[file:ffp-extension-original]'
+      options:
+        slashes: false
+        pathauto: false
+        transliterate: false
+    redirect: false
+    retroactive_update: false
+    active_updating: false
+id: node.logentry.field_attach
+field_name: field_attach
+entity_type: node
+bundle: logentry
+label: Attachments
+description: 'Used to attach non-image based files to a log entry.  Examples would be PDF files, spreadsheets, etc.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'txt xls pdf doc docx xlsx ppt pptx zip gz 7z rtf csv tsv avi ods odt odp'
+  max_filesize: 16MB
+  description_field: true
+field_type: file

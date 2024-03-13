@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - comment.type.logentry_comments
+    - field.storage.comment.field_notify
+  enforced:
+    module:
+      - elog_core
+id: comment.logentry_comments.field_notify
+field_name: field_notify
+entity_type: comment
+bundle: logentry_comments
+label: Notify
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,107 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.logentry.field_attach
+    - field.field.node.logentry.field_body
+    - field.field.node.logentry.field_entrymakers
+    - field.field.node.logentry.field_image
+    - field.field.node.logentry.field_logbook
+    - field.field.node.logentry.field_lognumber
+    - field.field.node.logentry.field_notify
+    - field.field.node.logentry.field_references
+    - field.field.node.logentry.field_tags
+    - node.type.logentry
+  module:
+    - file
+    - image
+    - text
+    - user
+_core:
+  default_config_hash: '-2HEJ42xNjsPwMxACCJHAqMbew1YZD5S9SseRsvgw50'
+id: node.logentry.default
+targetEntityType: node
+bundle: logentry
+mode: default
+content:
+  field_attach:
+    type: file_default
+    label: above
+    settings:
+      use_description_as_link_text: true
+    third_party_settings: {  }
+    weight: 8
+    region: content
+  field_body:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 6
+    region: content
+  field_entrymakers:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 2
+    region: content
+  field_image:
+    type: image
+    label: above
+    settings:
+      image_link: ''
+      image_style: ''
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 7
+    region: content
+  field_logbook:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 3
+    region: content
+  field_lognumber:
+    type: number_integer
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_notify:
+    type: string
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 9
+    region: content
+  field_references:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 5
+    region: content
+  field_tags:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 4
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden: {  }

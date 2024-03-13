@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_references
+    - node.type.logentry
+  enforced:
+    module:
+      - elog_core
+id: node.logentry.field_references
+field_name: field_references
+entity_type: node
+bundle: logentry
+label: 'Logbook References'
+description: 'Link to another log entry.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      logentry: logentry
+    sort:
+      field: field_lognumber
+      direction: DESC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference
