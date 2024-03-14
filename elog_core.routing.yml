@@ -1,0 +1,14 @@
+elog_core.autocomplete_entry_maker:
+  path: '/elog_core/autocomplete/entry-maker'
+  defaults:
+    _controller: '\Drupal\elog_core\Controller\AutocompleteController::entryMaker'
+    _format: json
+  requirements:
+    _access: 'TRUE'
+elog_core.autocomplete_email:
+  path: '/elog_core/autocomplete/email'
+  defaults:
+    _controller: '\Drupal\elog_core\Controller\AutocompleteController::email'
+    _format: json
+  requirements:
+    _access: 'TRUE'
