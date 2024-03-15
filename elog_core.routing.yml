@@ -12,3 +12,10 @@ elog_core.autocomplete_email:
     _format: json
   requirements:
     _access: 'TRUE'
+elog_core.autocomplete_reference:
+  path: '/elog_core/autocomplete/reference'
+  defaults:
+    _controller: '\Drupal\elog_core\Controller\AutocompleteController::reference'
+    _format: json
+  requirements:
+    _access: 'TRUE'
