@@ -35,7 +35,6 @@ class CommaDelimitedTextfield extends StringTextfieldWidget {
     $default = parent::defaultSettings();
     $default['size'] = 100;
     $default['autocomplete_route'] = '';
-    dpm($default);
     return $default;
   }
 
