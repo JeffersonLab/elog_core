@@ -89,7 +89,6 @@ content:
     weight: 7
     region: content
     settings:
-      placeholder: ''
       size: 100
     third_party_settings: {  }
   field_tags:

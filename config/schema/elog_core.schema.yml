@@ -10,4 +10,29 @@ field.widget.settings.elog_comma_delimited_textfield:
       label: 'Placeholder'
     autocomplete_route:
       type: label
-      label: 'Route to use for autocompletexxx'
+      label: 'Route to use for autocomplete'
+
+field.widget.settings.elog_taxonomy_select2:
+  type: field.widget.settings.options_select
+  label: 'Elog Select2 simple widget'
+  mapping:
+    width:
+      type: string
+      label: 'Field width'
+    autocomplete:
+      type: boolean
+      label: 'Autocomplete'
+    match_operator:
+      type: string
+      label: 'Autocomplete matching'
+    match_limit:
+      type: integer
+      label: 'Maximum number of autocomplete suggestions.'
+
+field.widget.settings.elog_logentry_autocomplete:
+  type: mapping
+  label: 'Text field display format settings'
+  mapping:
+    size:
+      type: integer
+      label: 'Size of textfield'
