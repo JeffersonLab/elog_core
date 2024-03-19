@@ -11,6 +11,9 @@ vendor/bin/drush pmu elog_core
 For some reason the uninstall won't remove tags even though it will remove logbooks.
 We have to do it with drush
 ```shell
+# The shell script contains the commands for convenience
+./config-delete.sh
+
 vendor/bin/drush config:delete taxonomy.vocabulary.tags
 vendor/bin/drush config:delete field.storage.node.field_tags
 ```
