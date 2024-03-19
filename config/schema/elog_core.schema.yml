@@ -1,0 +1,13 @@
+field.widget.settings.elog_comma_delimited_textfield:
+  type: mapping
+  label: 'Text field display format settings'
+  mapping:
+    size:
+      type: integer
+      label: 'Size of textfield'
+    placeholder:
+      type: label
+      label: 'Placeholder'
+    autocomplete_route:
+      type: label
+      label: 'Route to use for autocompletexxx'

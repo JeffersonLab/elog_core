@@ -2,6 +2,8 @@
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * {@inheritdoc}
@@ -11,20 +13,133 @@ function elog_core_entity_presave(EntityInterface $entity) {
     $ls = Drupal::service('log_number.service');
     $log_number = $ls->nextLogNumber();
     if ($entity->isNew()){
-      if (! $entity->field_lognumber->isEmpty()) {
-        //var_dump(get_class($entity->field_lognumber));
-        if ($entity->field_lognumber->first()){
-          $submitted = $entity->field_lognumber->first()->value;
+      if (! $entity->get('field_lognumber')->isEmpty()) {
+        if ($entity->get('field_lognumber')->first()){
+          $submitted = $entity->get('field_lognumber')->first()->value;
           if ($submitted < 1) {
             $entity->set('field_lognumber', $log_number);
           }
         }
       }
     }else{
-      //TODO force back to original as safegaurd against nefarious submit
+      //TODO force back to original as safeguard against a nefarious submit?
 
     }
-
-
   }
+}
+
+/**
+ * Implements hook_FORM_ID_alter
+ * {@inheritdoc}
+ *
+ */
+function elog_core_form_node_logentry_edit_form_alter(&$form, &$form_state, $form_id){
+  _elog_core_customize_logentry_form($form);
+  //dpm($form);
+}
+
+/**
+ * Implements hook_FORM_ID_alter
+ * {@inheritdoc}
+ *
+ */
+function elog_core_form_node_logentry_form_alter(&$form, &$form_state, $form_id){
+  _elog_core_customize_logentry_form($form);
+  //dpm($form);
+}
+
+function _elog_core_customize_logentry_form(&$form) {
+
+//  $form['actions']['submit']['#submit'][] = 'elog_core_logentry_node_form_submit';
+  $form['#entity_builders'][] = 'elog_core_node_builder';
+}
+
+/**
+ * Implements hook_node_builder
+ * {@inheritdoc}
+ *
+ * @return void
+ */
+function elog_core_node_builder($entity_type, NodeInterface $node, &$form, FormStateInterface $form_state) {
+  if($node->getType() == 'logentry'){
+    // Convert comma delimited entrymakers to array
+    $items = $form_state->getValue('field_entrymakers');
+    $values = _elog_core_csv_to_array($items);
+    $node->set('field_entrymakers', $values);
+
+    // Convert comma delimited notify field to array
+    $items = $form_state->getValue('field_notify');
+    $values = _elog_core_csv_to_array($items);
+    $node->set('field_notify', $values);
+  }
+
+}
+
+
+function _elog_core_csv_to_array(array $items) {
+  $values = [];
+  foreach ($items as $key => $item ) {
+    if ($key == 'value'){
+      foreach (explode(',', $item) as $value) {
+        $values[] = trim($value);
+      }
+    }
+  }
+  return $values;
+}
+
+
+//function elog_core_logentry_node_form_submit($form, FormStateInterface $form_state) {
+//  dpm($form_state->getValue('field_notify'));
+//  $form_state->setValue('field_notify', _elog_core_csv_to_array($form_state->getValue('field_notify')));
+//  dpm($form_state->getValue('field_notify'));
+//}
+
+
+/**
+ * Compacts a multiple occurence field where drupal will want to
+ * have multiple text inputs and "add more" button into a single
+ * text input that can accept comma-delimited multiple values.
+ *
+ * @param array $form
+ * @param string $field the name of the field to compact
+ */
+function elog_collapse_multi_input(&$form, $field) {
+  $lang = $form['language']['#value'];
+
+  // zap the "add more" from fields where we want to use delimited
+  // multi-select autocomplete.
+  $form[$field][$lang]['#prefix'] = '';
+  $form[$field][$lang]['#suffix'] = '';
+  //$form[$field][$lang]['#theme'] = '';
+  unset($form[$field][$lang]['add_more']);
+
+  // Drupal will want to display multiple values each as its
+  // own text input.  We want to change that to a single input
+  // with comma-separate values
+  if (array_key_exists('#max_delta', $form[$field][$lang])) {
+    if ($form[$field][$lang]['#max_delta'] > 0) {
+      for ($i = 0; $i <= $form[$field][$lang]['#max_delta']; $i++) {
+        $maker = $form[$field][$lang][$i]['value']['#default_value'];
+        if ($maker) {
+          $entrymakers[$i] = $maker;
+        }
+        //print "$i: ".$form[$field][$lang][$i]['value']['#default_value']."\n<br>";
+        if ($i > 0) {
+          unset($form[$field][$lang][$i]);
+        }
+      }
+      $form[$field][$lang]['#max_delta'] = 1;
+      $form[$field][$lang][0]['value']['#default_value'] = implode(', ', $entrymakers);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter
+ * {@inheritdoc}
+ *
+ */
+function elog_core_form_alter(&$form, &$form_state, $form_id){
+  //dpm($form_id);
 }

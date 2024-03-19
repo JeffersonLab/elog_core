@@ -2,6 +2,7 @@
 
 namespace Drupal\elog_core\Controller;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\node\Entity\Node;
 use Drupal\user\Entity\User;
@@ -16,11 +17,12 @@ class AutoCompleteController extends ControllerBase {
    */
   public function entryMaker(Request $request) {
     $string = $request->query->get('q');
+    $string = Xss::filter($string);
     $matches = [];
     // Do nothing unless query string is at least 3 chars long
     if (strlen($string) > 2){
       // The query string may have multiple terms separated by a comma.
-      $pieces = array_map('trim', preg_split("/[,]+/", $string, NULL, PREG_SPLIT_NO_EMPTY));
+      $pieces = array_map('trim', preg_split("/[,]+/", $string, -1, PREG_SPLIT_NO_EMPTY));
       // The lookup should be performed on the last term in the list
       $lastPiece = trim(array_pop($pieces));
       // Don't query DB until at least 3 chars present in that last piece!
@@ -36,7 +38,10 @@ class AutoCompleteController extends ControllerBase {
           }else{
             $key .= ','.$username.', ';
           }
-          $matches[$key] = $display;
+          $matches[] = [
+            'label' => $display,
+            'value' => $key,
+          ];
         }
       }
     }
@@ -56,7 +61,7 @@ class AutoCompleteController extends ControllerBase {
     // Do nothing unless query string is at least 3 chars long
     if (strlen($string) > 2){
       // The query string may have multiple terms separated by a comma.
-      $pieces = array_map('trim', preg_split("/[,]+/", $string, NULL, PREG_SPLIT_NO_EMPTY));
+      $pieces = array_map('trim', preg_split("/[,]+/", $string, -1, PREG_SPLIT_NO_EMPTY));
       // The lookup should be performed on the last term in the list
       $lastPiece = trim(array_pop($pieces));
       // Don't query DB until at least 3 chars present in that last piece!
@@ -72,7 +77,10 @@ class AutoCompleteController extends ControllerBase {
           }else{
             $key .= ','.$mail.', ';
           }
-          $matches[$key] = $display;
+          $matches[] = [
+            'label' => $display,
+            'value' => $key,
+          ];
         }
       }
     }
@@ -107,7 +115,10 @@ class AutoCompleteController extends ControllerBase {
       foreach ($nodes as $node){
         $lognumber = $node->get('field_lognumber')->getString();
         $display = $lognumber.' - '.$node->getTitle();
-          $matches[$lognumber] = $display;
+        $matches[] = [
+          'label' => $display,
+          'value' => $lognumber,
+        ];
       }
     }
     return new JsonResponse($matches);
