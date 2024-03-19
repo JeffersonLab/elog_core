@@ -2,23 +2,28 @@ langcode: en
 status: true
 dependencies:
   module:
+    - comment
     - file
-    - node
+    - image
   enforced:
     module:
       - elog_core
-_core:
-  default_config_hash: ItHQwFZFMMscmVxKyvuTcArJiNV80Ile_VGTKKhOQGs
-id: node.field_attach
-field_name: field_attach
-entity_type: node
-type: file
+id: comment.field_image
+field_name: field_image
+entity_type: comment
+type: image
 settings:
   target_type: file
   display_field: false
   display_default: false
   uri_scheme: public
-module: file
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+module: image
 locked: false
 cardinality: -1
 translatable: true

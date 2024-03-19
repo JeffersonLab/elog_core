@@ -3,9 +3,6 @@ status: true
 dependencies:
   module:
     - node
-  enforced:
-    module:
-      - elog_core
 id: node.field_notify
 field_name: field_notify
 entity_type: node

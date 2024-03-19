@@ -6,6 +6,8 @@ dependencies:
   enforced:
     module:
       - elog_core
+_core:
+  default_config_hash: QEhnZvqvVqQ01gH1EKwQpP_RE6TlExKgRfCPGMKw7Eg
 name: 'User WYSIWYG'
 format: user_wysiwyg
 weight: 0
@@ -25,5 +27,4 @@ filters:
       config: "'safe' => 1"
       spec: ''
       help: "Javascript and the 'id' and 'style' HTML attributes are not permitted."
-      helplong: "CDATA sections and HTML comments treated as plain text. The applet, embed, iframe, object
-      ..and script elements, and the 'on*' attributes like onclick are disallowed."
+      helplong: "CDATA sections and HTML comments treated as plain text. The applet, embed, iframe, object ..and script elements, and the 'on*' attributes like onclick are disallowed."

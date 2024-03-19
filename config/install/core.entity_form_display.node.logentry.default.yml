@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.logentry.field_entrymakers
     - field.field.node.logentry.field_image
     - field.field.node.logentry.field_logbook
+    - field.field.node.logentry.field_logentry_comments
     - field.field.node.logentry.field_lognumber
     - field.field.node.logentry.field_notify
     - field.field.node.logentry.field_references
@@ -14,26 +15,21 @@ dependencies:
     - image.style.thumbnail
     - node.type.logentry
   module:
+    - comment
+    - elog_core
     - file
     - image
-    - path
     - text
 _core:
-  default_config_hash: 7T1B-Xt-LyZSrVNZnX6jXhuL8bhPk5Vo7CFaLIF9d_4
+  default_config_hash: UsdfN9yRn2cDUcdg9HJ2yOzwKGDP2IJeBzn7iF2FRs4
 id: node.logentry.default
 targetEntityType: node
 bundle: logentry
 mode: default
 content:
-  created:
-    type: datetime_timestamp
-    weight: 7
-    region: content
-    settings: {  }
-    third_party_settings: {  }
   field_attach:
     type: file_generic
-    weight: 14
+    weight: 6
     region: content
     settings:
       progress_indicator: throbber
@@ -47,12 +43,13 @@ content:
       placeholder: ''
     third_party_settings: {  }
   field_entrymakers:
-    type: string_textfield
+    type: elog_comma_delimited_textfield
     weight: 3
     region: content
     settings:
-      size: 60
+      size: 100
       placeholder: ''
+      autocomplete_route: elog_core.autocomplete_entry_maker
     third_party_settings: {  }
   field_image:
     type: image_image
@@ -63,87 +60,61 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
   field_logbook:
-    type: entity_reference_autocomplete
+    type: elog_taxonomy_select2
     weight: 1
     region: content
     settings:
+      width: 100%
+      autocomplete: false
       match_operator: CONTAINS
       match_limit: 10
-      size: 60
-      placeholder: ''
     third_party_settings: {  }
-  field_notify:
-    type: string_textfield
-    weight: 12
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_references:
-    type: entity_reference_autocomplete
-    weight: 8
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  field_tags:
-    type: entity_reference_autocomplete
-    weight: 2
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  path:
-    type: path
-    weight: 11
+  field_logentry_comments:
+    type: comment_default
+    weight: 9
     region: content
     settings: {  }
     third_party_settings: {  }
-  promote:
-    type: boolean_checkbox
-    weight: 9
+  field_notify:
+    type: elog_comma_delimited_textfield
+    weight: 8
     region: content
     settings:
-      display_label: true
+      size: 100
+      placeholder: ''
+      autocomplete_route: elog_core.autocomplete_email
     third_party_settings: {  }
-  status:
-    type: boolean_checkbox
-    weight: 13
+  field_references:
+    type: elog_logentry_autocomplete
+    weight: 7
     region: content
     settings:
-      display_label: true
+      placeholder: ''
+      size: 100
     third_party_settings: {  }
-  sticky:
-    type: boolean_checkbox
-    weight: 10
+  field_tags:
+    type: elog_taxonomy_select2
+    weight: 2
     region: content
     settings:
-      display_label: true
+      autocomplete: false
+      match_operator: CONTAINS
+      match_limit: 10
+      width: 100%
     third_party_settings: {  }
   title:
     type: string_textfield
     weight: 0
     region: content
     settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  uid:
-    type: entity_reference_autocomplete
-    weight: 6
-    region: content
-    settings:
-      match_operator: CONTAINS
-      match_limit: 10
-      size: 60
+      size: 100
       placeholder: ''
     third_party_settings: {  }
 hidden:
+  created: true
   field_lognumber: true
+  path: true
+  promote: true
+  status: true
+  sticky: true
+  uid: true

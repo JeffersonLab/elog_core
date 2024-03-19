@@ -12,6 +12,8 @@ third_party_settings:
       - main-menu
       - navigation
     parent: 'main-menu:0:'
+_core:
+  default_config_hash: rSk2vLlidQIOtWNbHhqWXFjfcx44DFvSaThNvKHZzzo
 name: LogEntry
 type: logentry
 description: 'Basic Informational Electronic Logbook Entry.  '

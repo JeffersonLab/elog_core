@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: logentry_item
+label: 'Logentry Item'
+type: 'canonical_entities:node'
+pattern: '/logentry/[node:field_lognumber:value]'
+selection_criteria:
+  589aa043-1648-4199-8b7f-fd030db4ef1b:
+    id: 'entity_bundle:node'
+    negate: false
+    uuid: 589aa043-1648-4199-8b7f-fd030db4ef1b
+    context_mapping:
+      node: node
+    bundles:
+      logentry: logentry
+selection_logic: and
+weight: -5
+relationships: {  }

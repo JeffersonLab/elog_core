@@ -2,16 +2,14 @@ langcode: en
 status: true
 dependencies:
   module:
+    - comment
     - file
-    - node
   enforced:
     module:
       - elog_core
-_core:
-  default_config_hash: ItHQwFZFMMscmVxKyvuTcArJiNV80Ile_VGTKKhOQGs
-id: node.field_attach
+id: comment.field_attach
 field_name: field_attach
-entity_type: node
+entity_type: comment
 type: file
 settings:
   target_type: file

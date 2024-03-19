@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - elog_core
+id: logentry_comments
+label: 'Logentry Comments'
+target_entity_type_id: node
+description: 'Logentry follow up comments'

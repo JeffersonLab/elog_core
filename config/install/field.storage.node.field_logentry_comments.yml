@@ -2,22 +2,20 @@ langcode: en
 status: true
 dependencies:
   module:
+    - comment
     - node
-    - taxonomy
   enforced:
     module:
       - elog_core
-_core:
-  default_config_hash: 4h-3urQvtNP6RkSXAeWOkx6JHdcAtIHrIbIwOiV8Vzk
-id: node.field_logbook
-field_name: field_logbook
+id: node.field_logentry_comments
+field_name: field_logentry_comments
 entity_type: node
-type: entity_reference
+type: comment
 settings:
-  target_type: taxonomy_term
-module: core
+  comment_type: logentry_comments
+module: comment
 locked: false
-cardinality: -1
+cardinality: 1
 translatable: true
 indexes: {  }
 persist_with_no_fields: false

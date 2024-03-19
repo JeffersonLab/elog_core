@@ -6,6 +6,8 @@ dependencies:
   enforced:
     module:
       - elog_core
+_core:
+  default_config_hash: 8YMH5JKzEPdr8hDf_Wfctq1hGqjvtFYsWxp5e3G-N3M
 id: logbook_term
 label: 'Logbook Term'
 type: 'canonical_entities:taxonomy_term'

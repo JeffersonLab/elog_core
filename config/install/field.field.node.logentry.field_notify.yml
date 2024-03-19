@@ -4,15 +4,12 @@ dependencies:
   config:
     - field.storage.node.field_notify
     - node.type.logentry
-  enforced:
-    module:
-      - elog_core
 id: node.logentry.field_notify
 field_name: field_notify
 entity_type: node
 bundle: logentry
 label: Notify
-description: 'A list of email addresses (separated by commas) to receive an email copy of the logentry after it is posted.'
+description: ''
 required: false
 translatable: false
 default_value: {  }

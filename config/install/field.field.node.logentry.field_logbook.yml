@@ -8,6 +8,8 @@ dependencies:
   enforced:
     module:
       - elog_core
+_core:
+  default_config_hash: 3lBuIXRxLaIhGAhvUhVTu_yTH9uSRw4O17URiXYwaZs
 id: node.logentry.field_logbook
 field_name: field_logbook
 entity_type: node
@@ -27,5 +29,5 @@ settings:
       field: name
       direction: asc
     auto_create: false
-    auto_create_bundle: ''
+    auto_create_bundle: logbooks
 field_type: entity_reference

@@ -28,6 +28,8 @@ third_party_settings:
     redirect: false
     retroactive_update: false
     active_updating: false
+_core:
+  default_config_hash: VPiR7gFgFS7xGLN7tzg51jxYRGXKfgRxkggHrLZRABM
 id: node.logentry.field_attach
 field_name: field_attach
 entity_type: node

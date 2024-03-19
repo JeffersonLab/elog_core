@@ -6,6 +6,8 @@ dependencies:
   enforced:
     module:
       - elog_core
+_core:
+  default_config_hash: QB66_j1VkiwokIybUTcUUQRQSEAw7FjR19TJ2fzUqFA
 id: node.field_entrymakers
 field_name: field_entrymakers
 entity_type: node
