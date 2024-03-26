@@ -8,8 +8,10 @@ dependencies:
   - core:user
   - core:block
   - core:comment
+  - core:editor
   - core:field
   - core:filter
+  - core:menu_ui
   - core:mysql
   - core:node
   - core:taxonomy
