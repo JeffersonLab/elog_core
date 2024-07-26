@@ -19,3 +19,9 @@ elog_core.autocomplete_reference:
     _format: json
   requirements:
     _access: 'TRUE'
+elog_core.logbook:
+  path: '/book/{logbook}'
+  defaults:
+    _controller: '\Drupal\elog_core\Controller\LogentryController:logbook'
+  requirements:
+    _access: 'TRUE'
