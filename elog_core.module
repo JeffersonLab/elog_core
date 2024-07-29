@@ -11,7 +11,7 @@ use Drupal\node\NodeInterface;
 function elog_core_entity_presave(EntityInterface $entity) {
   if ($entity->getEntityTypeId() == 'node' && $entity->getType() == 'logentry') {
     $ls = Drupal::service('log_number.service');
-    $log_number = $ls->nextLogNumber();
+    $log_number = $ls->next_log_number();
     if ($entity->isNew()){
       if (! $entity->get('field_lognumber')->isEmpty()) {
         if ($entity->get('field_lognumber')->first()){
