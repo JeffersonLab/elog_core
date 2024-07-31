@@ -5,8 +5,7 @@ namespace Drupal\elog_core;
 use Drupal\Core\Url;
 
 /**
- * Return a list of logentries as a tabular Drupal Render Array.
- *
+ * Turn list of logentries into a Drupal Render Array table representation.
  *
  */
 class LogentryTabulator {
@@ -41,6 +40,7 @@ class LogentryTabulator {
    *   TODO caching
    * @see https://www.drupal.org/docs/drupal-apis/render-api/cacheability-of-render-arrays
    * @see https://drupalize.me/tutorial/cache-api-overview?p=2723
+   * TODO theming
    */
   public function table(): array {
     $output = [
@@ -49,9 +49,13 @@ class LogentryTabulator {
         '#caption' => $this->caption,
         '#attributes' => ['class' => 'logbook-listing'],
         // TODO make the columns dynamic
+        // TODO flags column (comments, needs attention, attachments)
         '#header' => [
           [
             'data' => 'Lognumber',
+          ],
+          [
+            'data' => 'Flags',
           ],
           [
             'data' => 'Date',
@@ -78,13 +82,16 @@ class LogentryTabulator {
           ],
         ],
         [
+          'data' => $this->attachment_count($entry),
+        ],
+        [
           'data' => $this->formatted_date($entry),
         ],
         [
             'data' => [
               '#type' => 'link',
               '#title' => $entry->getOwner()->get('name')->getString(),
-              '#url' => $this->user_url($entry->getOwner()->id()),
+              '#url' => $this->author_url($entry->getOwner()->id()),
               'uid' => $entry->getOwner()->id(),
             ],
         ],
@@ -101,18 +108,39 @@ class LogentryTabulator {
     return $output;
   }
 
+  /**
+   * The url for the logentry lognumber column
+   *
+   * Also used for the title column.
+   */
   protected function lognumber_url($nid) {
     return Url::fromRoute('entity.node.canonical', [
       'node' => $nid,
     ]);
   }
 
-  protected function user_url($uid) {
+  /**
+   * The url for the logentry author column
+   */
+  protected function author_url($uid) {
     return Url::fromRoute('entity.user.canonical', [
       'user' => $uid,
     ]);
   }
 
+  /**
+   * The number of attachments (file & image)
+   */
+  protected function attachment_count ($entry): int {
+    return  $entry->get('field_attach')->count() + $entry->get('field_image')->count();
+  }
+
+  /**
+   * Get a date string formatted appropriately for the current grouping.
+   *
+   * When grouping by date or shift, the date column gets abbreviated to
+   * display just the time.
+   */
   protected function formatted_date($entry) {
     switch ($this->group_by){
       case 'None' :
