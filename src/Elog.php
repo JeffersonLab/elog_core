@@ -12,23 +12,27 @@ class Elog {
   /**
    * Get the logbooks taxonomy term for given logbook name.
    */
-  public static function logbook_term(string $logbook): Term|null {
+  public static function logbook_term(string|int $logbook): Term|null {
     return self::get_term($logbook, 'logbooks');
   }
 
   /**
    * Get the logbooks taxonomy term for given logbook name.
    */
-  public static function tag_term(string $tag): Term|null {
+  public static function tag_term(string|int $tag): Term|null {
     return self::get_term($tag, 'tags');
   }
 
 
-  public static function get_term(string $name, string $vocabulary): Term|null {
+  public static function get_term(string|int $key, string $vocabulary): Term|null {
     $query = \Drupal::entityQuery('taxonomy_term');
     $query->accessCheck(FALSE);  //
     $query->condition('vid', $vocabulary);
-    $query->condition('name', $name);
+    if (is_numeric($key)){
+      $query->condition('tid', $key);
+    }else{
+      $query->condition('name', $key);
+    }
     $tids = $query->execute();
     if (empty($tids)) {
       return NULL;
