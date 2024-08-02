@@ -14,18 +14,27 @@ class LogentryController extends ControllerBase {
 
   /**
    * Display the entries of a single logbook.
-   * TODO honor query paramters in request
    */
   public function logbook(string $logbook, Request $request) {
-    dpm($request->query->all());
-    $query = new LogentryQuery();
-    $query->add_logbook($logbook);
-//    $query->add_tag('Autolog');
+    $query = LogentryQuery::from_request($request);
+    $query->set_logbook($logbook);
     $entries = $query->result_nodes();
     $tabulator = new LogentryTabulator($entries);
     return $tabulator->table();
   }
 
+  /**
+   * Display entries based on request parameters.
+   */
+  public function entries(Request $request) {
+    $query = LogentryQuery::from_request($request);
+    dpm($query->tags);
+    dpm(date('Y-m-d',$query->start_date));
+    dpm(date('Y-m-d',$query->end_date));
+    $entries = $query->result_nodes();
+    $tabulator = new LogentryTabulator($entries);
+    return $tabulator->table();
+  }
 
 
 
