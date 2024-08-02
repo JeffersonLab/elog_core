@@ -4,7 +4,6 @@ namespace Drupal\elog_core;
 
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Entity\Query\Sql\Query;
-use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\HttpFoundation\Request;
@@ -74,23 +73,11 @@ class LogentryQuery implements LogentryQueryInterface {
 
 
 
-
-  /**
-   * A logger instance.
-   */
-  protected \Psr\Log\LoggerInterface $logger;
-
-
   /**
  * Constructs a LogentryQuery object.
-   *
-   * @param LoggerChannelFactory $logger
-   *   A logger instance.
    */
   public function __construct() {
-    $this->logger = \Drupal::logger('elog');
     $this->set_default_dates();
-
   }
 
   public function set_default_dates(){
@@ -282,9 +269,7 @@ class LogentryQuery implements LogentryQueryInterface {
     }else{
       $this->set_start_date($this->auto_start_date($this->end_date));
     }
-    if ($this->start_date > $this->end_date){
-      $this->logger->debug('Ignored invalid "From" start date after requested "To" end date!', 'error');
-    }
+
   }
 
   /**
@@ -327,7 +312,7 @@ class LogentryQuery implements LogentryQueryInterface {
     if (is_string($tags)){
       $this->set_tag($tags);
     }else{
-      $this->logbooks = [];
+      $this->tags = [];
       foreach ($tags as $tag) {
         $this->add_tag($tag);
       }
