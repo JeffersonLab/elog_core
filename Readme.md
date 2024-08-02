@@ -18,6 +18,18 @@ vendor/bin/drush config:delete taxonomy.vocabulary.tags
 vendor/bin/drush config:delete field.storage.node.field_tags
 ```
 
+## Running Tests
+```shell
+# Specific directory
+./vendor/bin/phpunit -c web/core/ --testsuite functional web/modules/custom/elog_core/tests/src/Functional/
+./vendor/bin/phpunit -c web/core/ --testsuite unit web/modules/custom/elog_core/tests/src/Unit/
+
+
+# Using attributes from test class annotations
+ ./vendor/bin/phpunit -c web/core/ --testsuite functional --group elog_core
+
+```
+
 ## References
 
 [https://www.digitalnadeem.com/drupal/how-to-create-additional-fields-programmatically-in-user-account-and-displaying-same-in-user-registration-page-drupal-9-and-drupal-10/]()
