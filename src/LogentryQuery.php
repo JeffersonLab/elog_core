@@ -25,8 +25,9 @@ class LogentryQuery implements LogentryQueryInterface {
 
   /**
    * Pagination limit
+   * TODO - move to module settings
    */
-  public int $entries_per_page = 100;
+  public int $entries_per_page = 2000;
 
   /**
    * The tags to query
@@ -54,6 +55,25 @@ class LogentryQuery implements LogentryQueryInterface {
   public bool $sticky = false;
 
 
+  /**
+   * Earliest entry date to include stored as unix timestamp
+   */
+  public int $start_date;
+
+  /**
+   * Latest entry date to include stored as unix timestamp
+   */
+  public int $end_date;
+
+
+  /**
+   * Subtracted from end_date to set default start_date.
+   * TODO - move to module settings
+   */
+  public $default_days = 30;
+
+
+
 
   /**
    * A logger instance.
@@ -69,6 +89,23 @@ class LogentryQuery implements LogentryQueryInterface {
    */
   public function __construct() {
     $this->logger = \Drupal::logger('elog');
+    $this->set_default_dates();
+
+  }
+
+  public function set_default_dates(){
+    $this->end_date = $this->default_end_date();
+    $this->start_date = $this->default_start_date();
+  }
+
+  public function default_end_date() {
+    $d = getdate(); //current date/time
+    return mktime(24,0,0,$d['mon'],$d['mday'],$d['year']);
+  }
+
+  public function default_start_date() {
+    $d = getdate(); //current date/time
+    return mktime(0,0,0,$d['mon'],$d['mday'] - $this->default_days,$d['year']);
   }
 
   /**
@@ -79,7 +116,9 @@ class LogentryQuery implements LogentryQueryInterface {
    * @return \Drupal\elog_core\LogentryQuery
    */
   public static function from_request(Request $request): LogentryQuery {
-
+      $query = new static();
+      $query->apply_request($request);
+      return $query;
   }
 
   /**
@@ -96,6 +135,14 @@ class LogentryQuery implements LogentryQueryInterface {
     }else{
       throw new \Exception('Logbook term was not found');
     }
+  }
+
+  /**
+   * Specify a single logbook to query
+   */
+  public function set_logbook(Term | int | string $book) {
+    $this->logbooks = [];
+    $this->add_logbook($book);
   }
 
   /**
@@ -131,7 +178,9 @@ class LogentryQuery implements LogentryQueryInterface {
     $this->query = \Drupal::entityQuery('node')
       ->condition('type', 'logentry')
       ->accessCheck(FALSE)
-      ->sort('created', 'DESC');
+      ->sort('created', 'DESC')
+      ->condition($this->table_date,[$this->start_date, $this->end_date], 'BETWEEN');
+
 
     $this->set_pager();
     $this->apply_logbook_conditions();
@@ -188,5 +237,73 @@ class LogentryQuery implements LogentryQueryInterface {
     }
   }
 
+
+  public function apply_request(Request $request) {
+    $this->set_start_date($request->get('start_date'));
+    $this->set_end_date($request->get('end_date'));
+  }
+
+  /**
+   * Sets a start (min) date for query results
+   * The date parameter is interpreted based on its data type
+   *   int :  unix timestamp
+   *   string: parsed by strtotime
+   *   array: ['date'=>str, 'time'=>str]
+   */
+  public function set_start_date($date) {
+    dpm($date);
+    //TODO refactor this d7 code to use Carbon?
+    if (is_numeric($date)){
+      $this->start_date = $date;
+    }elseif (is_string($date) && $date != ''){
+      $this->start_date = strtotime($date);
+    }else if (is_array($date)){
+      if (array_key_exists('date', $date) && array_key_exists('time', $date)){
+        if ($date['date']){
+          if (! $date['time']){
+            $date['time'] = '00:00';
+          }
+          $this->start_date = strtotime(sprintf("%s %s", $date['date'], $date['time']));
+        }
+      }
+    }else{
+      $this->set_start_date($this->auto_start_date($this->end_date));
+    }
+    if ($this->start_date > $this->end_date){
+      $this->logger->debug('Ignored invalid "From" start date after requested "To" end date!', 'error');
+    }
+  }
+
+  /**
+   * Sets an end (max) date for query results
+   * The date parameter is interpreted based on its data type
+   *   int :  unix timestamp
+   *   string: parsed by strtotime
+   *   array: ['date'=>str, 'time'=>str]
+ */
+  public function set_end_date($date){
+    //TODO refactor this d7 code to use Carbon?
+    //TODO refactor out commonality with set_start_date
+    if (is_numeric($date)){
+      $this->end_date = $date;
+    }elseif (is_string($date)){
+      $this->end_date = strtotime($date);
+    }elseif (is_array($date)){
+      if (array_key_exists('date', $date) && array_key_exists('time', $date)){
+        $this->end_date = strtotime(sprintf("%s %s", $date['date'], $date['time']));
+      }
+    }
+    // Force the start date to be before end date.
+    if ($this->end_date <= $this->start_date){
+      $this->set_start_date($this->auto_start_date($this->end_date));
+    }
+  }
+
+  protected function auto_start_date($end_date){
+    $n = $this->default_days;
+    $start_exact = strtotime("-$n days", $end_date);
+    $start_midnight = strtotime(date('Y-m-d 00:00', $start_exact));
+    return $start_midnight;
+  }
 
 }
