@@ -21,7 +21,7 @@ class LogentryQuery implements LogentryQueryInterface {
    * The logbooks to query
    *
    */
-  public array $logbooks;   // [tid => name]
+  public array $logbooks = [];   // [tid => name]
 
   /**
    * Pagination limit
@@ -32,7 +32,7 @@ class LogentryQuery implements LogentryQueryInterface {
   /**
    * The tags to query
    */
-  public array $tags;       // [tid => name]
+  public array $tags = [];       // [tid => name]
 
   /**
    * The date column used for sorting and filtering.
@@ -146,6 +146,14 @@ class LogentryQuery implements LogentryQueryInterface {
   }
 
   /**
+   * Specify a single tag to query
+   */
+  public function set_tag(Term | int | string $tag) {
+    $this->tags = [];
+    $this->add_tag($tag);
+  }
+
+  /**
    * Add a tag to our filters
    */
   public function add_tag(Term | int | string $tag) {
@@ -241,6 +249,12 @@ class LogentryQuery implements LogentryQueryInterface {
   public function apply_request(Request $request) {
     $this->set_start_date($request->get('start_date'));
     $this->set_end_date($request->get('end_date'));
+    if ($request->get('logbooks')){
+        $this->set_logbooks($request->get('logbooks'));
+    }
+    if ($request->get('tags')){
+      $this->set_tags($request->get('tags'));
+    }
   }
 
   /**
@@ -251,7 +265,6 @@ class LogentryQuery implements LogentryQueryInterface {
    *   array: ['date'=>str, 'time'=>str]
    */
   public function set_start_date($date) {
-    dpm($date);
     //TODO refactor this d7 code to use Carbon?
     if (is_numeric($date)){
       $this->start_date = $date;
@@ -296,6 +309,28 @@ class LogentryQuery implements LogentryQueryInterface {
     // Force the start date to be before end date.
     if ($this->end_date <= $this->start_date){
       $this->set_start_date($this->auto_start_date($this->end_date));
+    }
+  }
+
+  public function set_logbooks(string | array $logbooks) {
+    if (is_string($logbooks)){
+      $this->set_logbook($logbooks);
+    }else{
+      $this->logbooks = [];
+      foreach ($logbooks as $logbook) {
+        $this->add_logbook($logbook);
+      }
+    }
+  }
+
+  public function set_tags(string | array $tags) {
+    if (is_string($tags)){
+      $this->set_tag($tags);
+    }else{
+      $this->logbooks = [];
+      foreach ($tags as $tag) {
+        $this->add_tag($tag);
+      }
     }
   }
 
