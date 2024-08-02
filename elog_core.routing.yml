@@ -25,3 +25,9 @@ elog_core.logbook:
     _controller: '\Drupal\elog_core\Controller\LogentryController:logbook'
   requirements:
     _access: 'TRUE'
+elog_core.entries:
+  path: '/entries'
+  defaults:
+    _controller: '\Drupal\elog_core\Controller\LogentryController:entries'
+  requirements:
+    _access: 'TRUE'
