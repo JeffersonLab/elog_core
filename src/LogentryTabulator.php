@@ -78,11 +78,11 @@ class LogentryTabulator {
             '#type' => 'link',
             '#title' => $entry->get('field_lognumber')->getString(),
             '#url' => $this->lognumber_url($entry->id()),
-            'nid' => $entry->id(),
+            '#nid' => $entry->id(),
           ],
         ],
         [
-          'data' => $this->attachment_count($entry),
+          'data' => $this->attachment_count($entry) .','.$this->comment_count($entry),
         ],
         [
           'data' => $this->formatted_date($entry),
@@ -92,7 +92,7 @@ class LogentryTabulator {
               '#type' => 'link',
               '#title' => $entry->getOwner()->get('name')->getString(),
               '#url' => $this->author_url($entry->getOwner()->id()),
-              'uid' => $entry->getOwner()->id(),
+              '#uid' => $entry->getOwner()->id(),
             ],
         ],
         [
@@ -100,7 +100,7 @@ class LogentryTabulator {
             '#type' => 'link',
             '#title' => $entry->getTitle(),
             '#url' => $this->lognumber_url($entry->id()),
-            'nid' => $entry->id(),
+            '#nid' => $entry->id(),
           ],
         ],
       ];
@@ -134,6 +134,18 @@ class LogentryTabulator {
   protected function attachment_count ($entry): int {
     return  $entry->get('field_attach')->count() + $entry->get('field_image')->count();
   }
+
+  /**
+   * The number of attachments (file & image)
+   */
+  protected function comment_count ($entry): int {
+    // The field_logentry_comments seems to return an array of
+    // statistics rather than the comments themselves which I guess
+    // we'd have to load with some sort of query.  For current purposes
+    // the comment_count from those statistics is sufficient.
+    return$entry->field_logentry_comments->comment_count;
+  }
+
 
   /**
    * Get a date string formatted appropriately for the current grouping.
