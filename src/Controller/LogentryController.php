@@ -16,9 +16,9 @@ class LogentryController extends ControllerBase {
    * Display the entries of a single logbook.
    */
   public function logbook(string $logbook, Request $request) {
-    $query = LogentryQuery::from_request($request);
-    $query->set_logbook($logbook);
-    $entries = $query->result_nodes();
+    $query = LogentryQuery::fromRequest($request);
+    $query->setLogbook($logbook);
+    $entries = $query->resultNodes();
     $tabulator = new LogentryTabulator($entries);
     return $tabulator->table();
   }
@@ -27,11 +27,12 @@ class LogentryController extends ControllerBase {
    * Display entries based on request parameters.
    */
   public function entries(Request $request) {
-    $query = LogentryQuery::from_request($request);
+    dpm($this->getLogger('elog'));
+    $query = LogentryQuery::fromRequest($request);
     dpm($query->tags);
-    dpm(date('Y-m-d',$query->start_date));
-    dpm(date('Y-m-d',$query->end_date));
-    $entries = $query->result_nodes();
+    dpm(date('Y-m-d',$query->startDate));
+    dpm(date('Y-m-d',$query->endDate));
+    $entries = $query->resultNodes();
     $tabulator = new LogentryTabulator($entries);
     return $tabulator->table();
   }
