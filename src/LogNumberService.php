@@ -31,7 +31,7 @@ class LogNumberService {
     $this->logger = $loggerFactory->get('elog');
   }
 
-  public function next_log_number() {
+  public function nextLogNumber() {
     $connection = Database::getConnection();
     // @todo review https://api.drupal.org/api/drupal/core%21includes%21database.inc/function/db_transaction/8.2.x
     $transaction = $connection->startTransaction();

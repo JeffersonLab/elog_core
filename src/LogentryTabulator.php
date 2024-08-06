@@ -13,12 +13,22 @@ class LogentryTabulator {
   /**
    * The date shown in table view.
    */
-  public string $table_date = 'created';
+  public string $tableDate = 'created';
 
   /**
    * Groups entries by (DAY, SHIFT, or NONE )
    */
-  public $group_by = 'SHIFT';
+  public $groupBy = 'NONE';
+
+  /**
+   * A map of which hours belong to which shift.
+   * Useful when grouping by shifts.
+   */
+  protected $opsShifts = array('OWL','OWL','OWL','OWL','OWL','OWL','OWL',
+    'DAY','DAY','DAY','DAY','DAY','DAY','DAY','DAY',
+    'SWING','SWING','SWING','SWING','SWING','SWING','SWING','SWING',
+    'OWL');
+
 
   /**
    * Caption for the table
@@ -77,21 +87,21 @@ class LogentryTabulator {
           'data' => [
             '#type' => 'link',
             '#title' => $entry->get('field_lognumber')->getString(),
-            '#url' => $this->lognumber_url($entry->id()),
+            '#url' => $this->lognumberUrl($entry->id()),
             '#nid' => $entry->id(),
           ],
         ],
         [
-          'data' => $this->attachment_count($entry) .','.$this->comment_count($entry),
+          'data' => $this->attachmentCount($entry) .','.$this->commentCount($entry),
         ],
         [
-          'data' => $this->formatted_date($entry),
+          'data' => $this->formattedDate($entry),
         ],
         [
             'data' => [
               '#type' => 'link',
               '#title' => $entry->getOwner()->get('name')->getString(),
-              '#url' => $this->author_url($entry->getOwner()->id()),
+              '#url' => $this->authorUrl($entry->getOwner()->id()),
               '#uid' => $entry->getOwner()->id(),
             ],
         ],
@@ -99,7 +109,7 @@ class LogentryTabulator {
           'data' => [
             '#type' => 'link',
             '#title' => $entry->getTitle(),
-            '#url' => $this->lognumber_url($entry->id()),
+            '#url' => $this->lognumberUrl($entry->id()),
             '#nid' => $entry->id(),
           ],
         ],
@@ -113,7 +123,7 @@ class LogentryTabulator {
    *
    * Also used for the title column.
    */
-  protected function lognumber_url($nid) {
+  protected function lognumberUrl($nid) {
     return Url::fromRoute('entity.node.canonical', [
       'node' => $nid,
     ]);
@@ -122,7 +132,7 @@ class LogentryTabulator {
   /**
    * The url for the logentry author column
    */
-  protected function author_url($uid) {
+  protected function authorUrl($uid) {
     return Url::fromRoute('entity.user.canonical', [
       'user' => $uid,
     ]);
@@ -131,14 +141,14 @@ class LogentryTabulator {
   /**
    * The number of attachments (file & image)
    */
-  protected function attachment_count ($entry): int {
+  protected function attachmentCount ($entry): int {
     return  $entry->get('field_attach')->count() + $entry->get('field_image')->count();
   }
 
   /**
    * The number of attachments (file & image)
    */
-  protected function comment_count ($entry): int {
+  protected function commentCount ($entry): int {
     // The field_logentry_comments seems to return an array of
     // statistics rather than the comments themselves which I guess
     // we'd have to load with some sort of query.  For current purposes
@@ -153,12 +163,12 @@ class LogentryTabulator {
    * When grouping by date or shift, the date column gets abbreviated to
    * display just the time.
    */
-  protected function formatted_date($entry) {
-    switch ($this->group_by){
-      case 'None' :
-        return date('Y-m-d H:i', $entry->get($this->table_date)->getString());
+  protected function formattedDate($entry) {
+    switch (strtoupper($this->groupBy)){
+      case 'NONE' :
+        return date('Y-m-d H:i', $entry->get($this->tableDate)->getString());
       default:
-        return date('H:i', $entry->get($this->table_date)->getString());
+        return date('H:i', $entry->get($this->tableDate)->getString());
     }
   }
 
