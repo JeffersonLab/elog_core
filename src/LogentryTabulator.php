@@ -68,6 +68,9 @@ class LogentryTabulator {
             'data' => 'Flags',
           ],
           [
+            'data' => 'Logbooks',
+          ],
+          [
             'data' => 'Date',
           ],
           [
@@ -93,6 +96,9 @@ class LogentryTabulator {
         ],
         [
           'data' => $this->attachmentCount($entry) .','.$this->commentCount($entry),
+        ],
+        [
+          'data' => $entry->get('field_logbook')->getString(),
         ],
         [
           'data' => $this->formattedDate($entry),
