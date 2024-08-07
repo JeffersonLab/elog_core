@@ -3,18 +3,14 @@
 namespace Drupal\elog_core;
 
 use Drupal\Core\Entity\Query\QueryInterface;
-use Drupal\Core\Entity\Query\Sql\Query;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Query the database to retrieve logentry nodes.
+ *  Core functionality for logentry queries.
  */
-class LogentryQuery implements LogentryQueryInterface {
-
-
-  protected QueryInterface $query;
+abstract class LogentryBaseQuery implements LogentryQueryInterface {
 
   /**
    * The logbooks to query
@@ -46,7 +42,7 @@ class LogentryQuery implements LogentryQueryInterface {
   /**
    * A list of logbooks to exclude from query results
    */
-  public array $excludeBooks = [];
+  public array $excludeLogbooks = [];
 
   /**
    * The state of the sticky flag
@@ -72,9 +68,8 @@ class LogentryQuery implements LogentryQueryInterface {
   public $defaultDays = 30;
 
 
-
   /**
- * Constructs a LogentryQuery object.
+   * Constructs a LogentryQuery object.
    */
   public function __construct() {
     $this->setDefaultDates();
@@ -95,18 +90,22 @@ class LogentryQuery implements LogentryQueryInterface {
     return mktime(0,0,0,$d['mon'],$d['mday'] - $this->defaultDays,$d['year']);
   }
 
+
   /**
    * Instantiate from HTTP Request parameters.
    *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *
-   * @return \Drupal\elog_core\LogentryQuery
    */
-  public static function fromRequest(Request $request): LogentryQuery {
-      $query = new static();
-      $query->applyRequest($request);
-      return $query;
+  public static function fromRequest(Request $request): LogentryQueryInterface {
+    $query = new static();
+    $query->applyRequest($request);
+    return $query;
   }
+
+
+
+
+
+
 
   /**
    * Add a logbook to our filters
@@ -122,6 +121,26 @@ class LogentryQuery implements LogentryQueryInterface {
     }else{
       throw new \Exception('Logbook term was not found');
     }
+  }
+
+  /**
+   * Exclude a logbook from the results
+   */
+  public function excludeLogbook(Term | int | string $book) {
+    if ($term = $this->getLogbookTerm($book)) {
+      $this->excludeLogbooks[$term->id()] = $term->getName();
+    }else{
+      throw new \Exception('Logbook term was not found');
+    }
+  }
+
+
+  protected function getLogbookTerm(Term | int | string $book) {
+    if (is_string($book)) {
+      return Elog::logbookTerm($book);
+    }
+
+    return $this->getTerm($book);
   }
 
   /**
@@ -165,84 +184,21 @@ class LogentryQuery implements LogentryQueryInterface {
     }
     return null;
   }
-  /**
-   * Build the drupal entity query
-   * @see https://www.drupaleasy.com/blogs/ultimike/2020/07/entityquery-examples-everybody
-   */
-  public function query() : QueryInterface {
-    $this->query = \Drupal::entityQuery('node')
-      ->condition('type', 'logentry')
-      ->accessCheck(FALSE)
-      ->sort('created', 'DESC')
-      ->condition($this->tableDate,[$this->startDate, $this->endDate], 'BETWEEN');
-
-
-    $this->setPager();
-    $this->applyLogbookConditions();
-    $this->applyTagConditions();
-
-//    dpm($this->query->__toString());
-    return $this->query;
-  }
 
   /**
-   * Obtain query results as an array of numeric ids
+   * Use parameters from an HTTP Request to set query conditions.
    */
-  public function resultIds() : array {
-    return $this->query()->execute();
-  }
-
-  /**
-   * Obtain query results as an array of node objects
-   */
-  public function resultNodes() : array {
-    return Node::loadMultiple($this->query()->execute());
-  }
-
-  /**
-   * Apply logbook filter conditions to the query object.
-   *
-   * @return void
-   */
-  protected function applyLogbookConditions() {
-    if (! empty($this->logbooks)){
-      $tids = array_keys($this->logbooks);
-      $this->query->condition('field_logbook.entity:taxonomy_term.tid', $tids, 'IN');
-    }
-  }
-
-  /**
-   * Apply logbook filter conditions to the query object.
-   *
-   * @return void
-   */
-  protected function applyTagConditions() {
-    if (! empty($this->tags)){
-      $tids = array_keys($this->tags);
-      $this->query->condition('field_tags.entity:taxonomy_term.tid', $tids, 'IN');
-    }
-  }
-
-  /**
-   * Sets the pagination limit
-   */
-  protected function setPager() {
-    if ($this->entriesPerPage > 0){
-      $this->query->pager($this->entriesPerPage);
-    }
-  }
-
-
-  public function applyRequest(Request $request) {
+  public function applyRequest(Request $request): void {
     $this->setStartDate($request->get('start_date'));
     $this->setEndDate($request->get('end_date'));
     if ($request->get('logbooks')){
-        $this->setLogbooks($request->get('logbooks'));
+      $this->setLogbooks($request->get('logbooks'));
     }
     if ($request->get('tags')){
       $this->setTags($request->get('tags'));
     }
   }
+
 
   /**
    * Sets a start (min) date for query results
@@ -278,7 +234,7 @@ class LogentryQuery implements LogentryQueryInterface {
    *   int :  unix timestamp
    *   string: parsed by strtotime
    *   array: ['date'=>str, 'time'=>str]
- */
+   */
   public function setEndDate($date){
     //TODO refactor this d7 code to use Carbon?
     //TODO refactor out commonality with set_start_date
@@ -324,6 +280,27 @@ class LogentryQuery implements LogentryQueryInterface {
     $start_exact = strtotime("-$n days", $end_date);
     $start_midnight = strtotime(date('Y-m-d 00:00', $start_exact));
     return $start_midnight;
+  }
+
+  /**
+   * Sets the pagination limit
+   */
+  protected function setPager() {
+    if ($this->entriesPerPage > 0){
+      $this->query->pager($this->entriesPerPage);
+    }
+  }
+
+  /**
+   * Obtain query results as array of version and node ids [vid => nid]
+   */
+  abstract function resultIds() : array;
+
+  /**
+   * Obtain query results as array of logentry Nodes
+   */
+  public function resultNodes() : array {
+    return Node::loadMultiple($this->resultIds());
   }
 
 }
