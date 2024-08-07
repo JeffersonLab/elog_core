@@ -3,6 +3,7 @@
 namespace Drupal\elog_core;
 
 use Drupal\Core\Url;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * Turn list of logentries into a Drupal Render Array table representation.
@@ -98,7 +99,7 @@ class LogentryTabulator {
           'data' => $this->attachmentCount($entry) .','.$this->commentCount($entry),
         ],
         [
-          'data' => $entry->get('field_logbook')->getString(),
+          'data' =>$this->formattedLogbooks($entry),
         ],
         [
           'data' => $this->formattedDate($entry),
@@ -145,6 +146,16 @@ class LogentryTabulator {
   }
 
   /**
+   * The url for the logentry logbook column
+   *
+   */
+  protected function logbookUrl($book) {
+    return Url::fromRoute('elog_core.logbook', [
+      'logbook' => $book
+    ]);
+  }
+
+  /**
    * The number of attachments (file & image)
    */
   protected function attachmentCount ($entry): int {
@@ -162,6 +173,24 @@ class LogentryTabulator {
     return$entry->field_logentry_comments->comment_count;
   }
 
+  protected function formattedLogbooks($entry) {
+    $elements = [
+      '#theme' => 'item_list',
+      '#type' => 'ul',
+    ];
+    foreach (array_values($entry->get('field_logbook')->getValue()) as $list) {
+      foreach ($list as $item) {
+        $term = Term::load($item);
+        $elements['#items'][] = [
+        '#type' => 'link',
+        '#title' => $term->getName(),
+        '#url' => $this->logbookUrl( $term->getName()),
+        '#tid' => $term->id(),
+       ];
+      }
+    }
+    return $elements;
+  }
 
   /**
    * Get a date string formatted appropriately for the current grouping.
