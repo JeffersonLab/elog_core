@@ -171,6 +171,13 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     return $this->getTerm($tag);
   }
 
+  /**
+   * Specify a single user to filter the query
+   */
+  public function setUser(User | int | string $user) {
+    $this->users = [];
+    $this->addUser($user);
+  }
 
   /**
    * Specify a single logbook to query

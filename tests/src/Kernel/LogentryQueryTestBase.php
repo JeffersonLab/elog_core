@@ -7,6 +7,7 @@ use Drupal\elog_core\LogentryQueryInterface;
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\user\Entity\User;
 
 /**
  * Abstract class with setup and tests common to all implementations
@@ -23,8 +24,11 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
   // Some logook terms for testing queries
   protected $logbooks = [];
 
-  // Some logook terms for testing queries
+  // Some tag terms for testing queries
   protected $tags = [];
+
+  // Some user entities for testing queries
+  protected $users = [];
 
   /**
    * Modules to install.
@@ -51,6 +55,7 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
     $this->installSchema('comment',['comment_entity_statistics']);
     $this->installConfig(['field', 'text','node', 'comment', 'user','elog_core','filefield_paths']);
 
+    $this->createUsers();
     $this->createLogbooks();
     $this->createTags();
     $this->createEntries();
@@ -66,6 +71,7 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
     $this->checkExcludeLogbooks();
     $this->checkTagQueries();
     $this->checkExcludeTags();
+    $this->checkUserQueries();
   }
 
   abstract function newLogentryQuery(): LogEntryQueryInterface;
@@ -108,16 +114,27 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
   }
 
   /**
+   * Create User Entities that can be attached to nodes
+   * and used to test user-related query performance.
+   */
+  protected function createUsers() {
+    foreach (['User1', 'User2','User3'] as $name){
+      $user = User::create(['name' => $name]);
+      $user->save();
+      $this->users[] = $user;
+    }
+  }
+
+  /**
    * Create Logentry nodes against which to test queries.
    *
    */
   protected function createEntries () {
-    $user = $this->createUser();
 
-    $node = $node = Node::create([
+    $node = Node::create([
       'title' => 'Entry 1',
       'type' => 'logentry',
-      'uid' => $user->id(),
+      'uid' => $this->users[0]->id(),
       'created' => strtotime('2023-08-01 15:30'),
     ]);
     $node->field_logbook = [
@@ -130,10 +147,10 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
 
     $this->entries[] = $node;
 
-    $node = $node = Node::create([
+    $node = Node::create([
       'title' => 'Entry 2',
       'type' => 'logentry',
-      'uid' => $user->id(),
+      'uid' => $this->users[0]->id(),
       'created' => strtotime('2023-08-04 10:20'),
     ]);
     $node->field_logbook = [
@@ -147,10 +164,10 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
     $node->save();
     $this->entries[] = $node;
 
-    $node = $node = Node::create([
+    $node = Node::create([
       'title' => 'Entry 3',
       'type' => 'logentry',
-      'uid' => $user->id(),
+      'uid' => $this->users[1]->id(),
       'created' => strtotime('2023-09-01 00:30'),
     ]);
     $node->field_logbook = [
@@ -252,4 +269,26 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
     $this->assertCount(3, $query->resultNodes());
 
   }
-}
+
+  /**
+   * Test queries assume the following entry to logbook assignments
+   *  Entry1 => Tag1
+   *  Entry2 => Tag1, Tag2
+   *  Entry3 => Tag3
+   *
+   * @throws \Exception
+   */
+  public function checkUserQueries() {
+    $query = $this->newLogentryQuery();
+    $query->setStartDate('2023-08-01');
+    $query->setEndDate('2023-09-15');
+    // Get first two entries authored by user 1
+    $query->setUser('User1');
+    $this->assertCount(2, $query->resultNodes());
+
+    // Also include third entry authored by user 2
+    $query->addUser('User2');
+    $this->assertCount(3, $query->resultNodes());
+
+  }
+  }

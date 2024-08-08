@@ -12,6 +12,11 @@ class LogentrySqlQuery extends LogentryBaseQuery {
 
   protected SelectInterface $query;
 
+  /**
+   * Build a Drupal SQL Query object with appropriate conditions applied.
+   * TODO string search
+   * TODO needs attention search
+   */
   public function query(){
 
     $this->query = \Drupal::database()
@@ -75,6 +80,7 @@ class LogentrySqlQuery extends LogentryBaseQuery {
     //      //$or->condition('n.title', '%'.$this->search_str.'%', 'LIKE');
     //      //$or->condition('bd.body_value', '%'.$this->search_str.'%', 'LIKE');
     //
+            // TODO ALTER TABLE node ADD FULLTEXT(title, body);
     //      $or->where("match(n.title) against (:str IN NATURAL LANGUAGE MODE)", array(':str' => $this->search_str));
     //      $or->where("match(bd.body_value) against (:str IN NATURAL LANGUAGE MODE)", array(':str' => $this->search_str));
     //
