@@ -149,13 +149,13 @@ class LogentrySqlQuery extends LogentryBaseQuery {
 
 
 
-    // we are looking for a "tid".
+    // Does the requester want specific logbooks?
     if (! empty($this->logbooks)) {
       $this->query->leftJoin('node__field_logbook', 'bf', 'n.nid = bf.entity_id');
       $this->query->condition('bf.field_logbook_target_id', array_keys($this->logbooks), 'IN');
     }
 
-    // Here we filter out explicitly not-wanted logbooks.
+    // Does the requester want to exclude specific logbooks?
     // Entries in multiple logbooks will be excluded if any one of their logbooks
     // was explicitly added the excludeLogbooks list.
     if (! empty($this->excludeLogbooks)) {
@@ -164,6 +164,24 @@ class LogentrySqlQuery extends LogentryBaseQuery {
       $subquery->condition('f.field_logbook_target_id', array_keys($this->excludeLogbooks), 'IN');
       $this->query->condition('n.nid', $subquery, 'NOT IN');
     }
+
+    // Does the requester want specific tags?
+    if (! empty($this->tags)) {
+      $this->query->leftJoin('node__field_tags', 'tf', 'n.nid = tf.entity_id');
+      $this->query->condition('tf.field_tags_target_id', array_keys($this->tags), 'IN');
+    }
+
+    // Does the requester want to exclude specific tags?
+    // Entries with multiple tags will be excluded if any one of their tags
+    // is excluded.
+    if (! empty($this->excludeTags)) {
+      $subquery = \Drupal::database()->select('node__field_tags', 'f');
+      $subquery->fields('f',['entity_id']);
+      $subquery->condition('f.field_tags_target_id', array_keys($this->excludeTags), 'IN');
+      $this->query->condition('n.nid', $subquery, 'NOT IN');
+    }
+
+
 
     //
     //    if ($this->tags && count($this->tags) > 0) {

@@ -20,6 +20,21 @@ class LogentryController extends ControllerBase {
     dpm($query->__toString());
     $entries = $query->resultNodes();
     $tabulator = new LogentryTabulator($entries);
+    $tabulator->groupBy='SHIFT';
+    return $tabulator->table();
+  }
+
+  /**
+   * Display the entries of a single tag.
+   */
+  public function tag(string $tag, Request $request) {
+    //$query = LogentryEntityQuery::fromRequest($request);
+    $query = LogentrySqlQuery::fromRequest($request);
+    $query->setTag($tag);
+    dpm($query->__toString());
+    $entries = $query->resultNodes();
+    $tabulator = new LogentryTabulator($entries);
+    $tabulator->groupBy='SHIFT';
     return $tabulator->table();
   }
 
