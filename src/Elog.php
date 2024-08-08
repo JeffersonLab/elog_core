@@ -3,6 +3,7 @@
 namespace Drupal\elog_core;
 
 use Drupal\taxonomy\Entity\Term;
+use Drupal\user\Entity\User;
 
 /**
  * Core functions used throughout the module
@@ -39,5 +40,21 @@ class Elog {
     }
     $term = Term::load(current($tids));
     return $term;    // term names are unique in a vocab so current == only
+  }
+
+  public static function getUser(int|string $key): User|null {
+    $query = \Drupal::entityQuery('user');
+    $query->accessCheck(FALSE);  //
+    if (is_numeric($key)){
+      $query->condition('uid', $key);
+    }else{
+      $query->condition('name', $key);
+    }
+    $uids = $query->execute();
+    if (empty($uids)) {
+      return NULL;
+    }
+    $user = User::load(current($uids));
+    return $user;    // term names are unique in a vocab so current == only
   }
 }

@@ -5,6 +5,7 @@ namespace Drupal\elog_core;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\user\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -19,15 +20,23 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   public array $logbooks = [];   // [tid => name]
 
   /**
+   * The tags to query
+   */
+  public array $tags = [];       // [tid => name]
+
+  /**
+   * The users to query
+   */
+  public array $users = [];       // [uid => name]
+
+
+  /**
    * Pagination limit
    * TODO - move to module settings
    */
   public int $entriesPerPage = 2000;
 
-  /**
-   * The tags to query
-   */
-  public array $tags = [];       // [tid => name]
+
 
   /**
    * The date column used for sorting and filtering.
@@ -203,6 +212,24 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
       return Term::load($term);
     }
     return null;
+  }
+
+  /**
+   * Add a user to our filters.
+   *
+   * A string argument is assumed to be a username value.
+   */
+  public function addUser(User | int | string $key) {
+    if (is_string($key) || is_int($key)) {
+      $user = Elog::getUser($key);
+    }else{
+      $user = $key;
+    }
+    if ($user) {
+      $this->users[$user->id()] = $user->getAccountName();
+    }else{
+      throw new \Exception('User not found');
+    }
   }
 
   /**

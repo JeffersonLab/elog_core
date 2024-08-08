@@ -22,10 +22,10 @@ class LogentryEntityQuery extends LogentryBaseQuery {
       ->sort('created', 'DESC')
       ->condition($this->tableDate,[$this->startDate, $this->endDate], 'BETWEEN');
 
-
-    $this->setPager();
+    $this->applyUserConditions();
     $this->applyLogbookConditions();
     $this->applyTagConditions();
+    $this->setPager();
     return $this->query;
   }
 
@@ -34,6 +34,13 @@ class LogentryEntityQuery extends LogentryBaseQuery {
    */
   public function resultIds() : array {
     return $this->query()->execute();
+  }
+
+  protected function applyUserConditions() : void {
+    if (! empty($this->users)) {
+      $uids = array_keys($this->users);
+      $this->query->condition('uid', $uids, 'IN');
+    }
   }
 
   /**
