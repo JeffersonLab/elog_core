@@ -5,13 +5,14 @@ namespace Drupal\Tests\elog_core\Kernel;
 use Carbon\Carbon;
 use Drupal\elog_core\LogentryQueryInterface;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 
 /**
  * Abstract class with setup and tests common to all implementations
  * of LogentryQueryInterface.
  */
-abstract class LogentryQueryTest  extends KernelTestBase {
+abstract class LogentryQueryTestBase  extends KernelTestBase {
   use \Drupal\Tests\user\Traits\UserCreationTrait;
   use \Drupal\Tests\node\Traits\NodeCreationTrait;
 
@@ -21,6 +22,9 @@ abstract class LogentryQueryTest  extends KernelTestBase {
 
   // Some logook terms for testing queries
   protected $logbooks = [];
+
+  // Some logook terms for testing queries
+  protected $tags = [];
 
   /**
    * Modules to install.
@@ -48,14 +52,35 @@ abstract class LogentryQueryTest  extends KernelTestBase {
     $this->installConfig(['field', 'text','node', 'comment', 'user','elog_core','filefield_paths']);
 
     $this->createLogbooks();
+    $this->createTags();
     $this->createEntries();
 
   }
 
+  // Because setup is so time-consuming we'll just have one test case
+  // that does everything.
+  public function testQueries(){
+    $this->checkDefaultDates();
+    $this->checkDateRangeQueries();
+    $this->checkLogbookQueries();
+    $this->checkExcludeLogbooks();
+    $this->checkTagQueries();
+    $this->checkExcludeTags();
+  }
+
   abstract function newLogentryQuery(): LogEntryQueryInterface;
 
+  /**
+   * The exclude functions behave differently between Entity and SQL queries
+   * so the specific subclasses must define their own test logic.
+   */
   abstract function checkExcludeLogbooks(): void;
+  abstract function checkExcludeTags(): void;
 
+  /**
+   * Create Logbook Taxonomy Term Entities that can be attached to nodes
+   * and used to test logbook-related query performance.
+   */
   protected function createLogbooks() {
     foreach (['Book1', 'Book2','Book3'] as $name){
       $term = Term::create([
@@ -67,10 +92,29 @@ abstract class LogentryQueryTest  extends KernelTestBase {
     }
   }
 
+  /**
+   * Create Tag Taxonomy Term Entities that can be attached to nodes
+   * and used to test tag-related query performance.
+   */
+  protected function createTags() {
+    foreach (['Tag1', 'Tag2','Tag3'] as $name){
+      $term = Term::create([
+        'name' => $name,
+        'vid' => 'tags',
+      ]);
+      $term->save();
+      $this->tags[] = $term;
+    }
+  }
+
+  /**
+   * Create Logentry nodes against which to test queries.
+   *
+   */
   protected function createEntries () {
     $user = $this->createUser();
 
-    $node = $node = \Drupal\node\Entity\Node::create([
+    $node = $node = Node::create([
       'title' => 'Entry 1',
       'type' => 'logentry',
       'uid' => $user->id(),
@@ -79,11 +123,14 @@ abstract class LogentryQueryTest  extends KernelTestBase {
     $node->field_logbook = [
       ['target_id' => $this->logbooks[0]->id()],
     ];
+    $node->field_tags = [
+      ['target_id' => $this->tags[0]->id()],
+    ];
     $node->save();
 
     $this->entries[] = $node;
 
-    $node = $node = \Drupal\node\Entity\Node::create([
+    $node = $node = Node::create([
       'title' => 'Entry 2',
       'type' => 'logentry',
       'uid' => $user->id(),
@@ -93,10 +140,14 @@ abstract class LogentryQueryTest  extends KernelTestBase {
       ['target_id' => $this->logbooks[0]->id()],
       ['target_id' => $this->logbooks[1]->id()],
     ];
+    $node->field_tags = [
+      ['target_id' => $this->tags[0]->id()],
+      ['target_id' => $this->tags[1]->id()],
+    ];
     $node->save();
     $this->entries[] = $node;
 
-    $node = $node = \Drupal\node\Entity\Node::create([
+    $node = $node = Node::create([
       'title' => 'Entry 3',
       'type' => 'logentry',
       'uid' => $user->id(),
@@ -105,15 +156,13 @@ abstract class LogentryQueryTest  extends KernelTestBase {
     $node->field_logbook = [
       ['target_id' => $this->logbooks[2]->id()],
     ];
+    $node->field_tags = [
+      ['target_id' => $this->tags[2]->id()],
+    ];
+
     $node->save();
   }
 
-  // Setup
-  public function testQueries(){
-    $this->checkDefaultDates();
-    $this->checkDateRangeQueries();
-    $this->checkLogbookQueries();
-  }
 
   public function checkDefaultDates() {
     $query = $this->newLogentryQuery();
@@ -175,6 +224,32 @@ abstract class LogentryQueryTest  extends KernelTestBase {
     $query->setLogbooks([]);
     $this->assertCount(3, $query->resultNodes());
 
+  }
+
+  /**
+   * Test queries assume the following entry to logbook assignments
+   *  Entry1 => Tag1
+   *  Entry2 => Tag1, Tag2
+   *  Entry3 => Tag3
+   *
+   * @throws \Exception
+   */
+  public function checkTagQueries() {
+    $query = $this->newLogentryQuery();
+    $query->setEndDate('2023-08-15');
+    $query->setTag('Tag1');
+    // Both entries are assigned to Book1
+    $this->assertCount(2, $query->resultNodes());
+
+    // Only entry 2 is assigned to Book2
+    $query->setTag('Tag2');
+    $this->assertCount(1, $query->resultNodes());
+
+    // All 3 entries
+    $query->setStartDate('2023-08-01');
+    $query->setEndDate('2023-09-15');
+    $query->setTags([]);
+    $this->assertCount(3, $query->resultNodes());
 
   }
 }

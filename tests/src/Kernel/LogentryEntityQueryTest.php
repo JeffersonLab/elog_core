@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  * @group elog_core
  * @group elog
  */
-class LogentryEntityQueryTest  extends LogentryQueryTest {
+class LogentryEntityQueryTest  extends LogentryQueryTestBase {
 
 
   public function newLogentryQuery(): LogEntryQueryInterface {
@@ -28,6 +28,9 @@ class LogentryEntityQueryTest  extends LogentryQueryTest {
 
   function checkExcludeLogbooks(): void{
     $query = $this->newLogentryQuery();
+    // Set date range that spans all test data
+    $query->setStartDate('2023-08-01');
+    $query->setEndDate('2023-09-15');
     // The EntityQuery includes entries belonging to the excluded
     // logbook so long as the also belong to at least one included
     // logbook.
@@ -35,5 +38,16 @@ class LogentryEntityQueryTest  extends LogentryQueryTest {
     $this->assertCount(2, $query->resultNodes());
   }
 
+  function checkExcludeTags(): void{
+    $query = $this->newLogentryQuery();
+    // Set date range that spans all test data
+    $query->setStartDate('2023-08-01');
+    $query->setEndDate('2023-09-15');
+    // The EntityQuery includes entries belonging to the excluded
+    // tag so long as the also belong to at least one included
+    // tag.
+    $query->excludeTag('Tag1');
+    $this->assertCount(2, $query->resultNodes());
+  }
 
 }
