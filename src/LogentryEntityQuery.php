@@ -65,6 +65,10 @@ class LogentryEntityQuery extends LogentryBaseQuery {
       $tids = array_keys($this->tags);
       $this->query->condition('field_tags.entity:taxonomy_term.tid', $tids, 'IN');
     }
+    if (! empty($this->excludeTags)){
+      $tids = array_keys($this->excludeTags);
+      $this->query->condition('field_tags.entity:taxonomy_term.tid', $tids, 'NOT IN');
+    }
   }
 
   public function __toString(): string {

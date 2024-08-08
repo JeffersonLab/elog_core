@@ -134,6 +134,17 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     }
   }
 
+  /**
+   * Exclude a tag from the results
+   */
+  public function excludeTag(Term | int | string $tag) {
+    if ($term = $this->getTagTerm($tag)) {
+      $this->excludeTags[$term->id()] = $term->getName();
+    }else{
+      throw new \Exception('Tag term was not found');
+    }
+  }
+
 
   protected function getLogbookTerm(Term | int | string $book) {
     if (is_string($book)) {
@@ -142,6 +153,15 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
 
     return $this->getTerm($book);
   }
+
+  protected function getTagTerm(Term | int | string $tag) {
+    if (is_string($tag)) {
+      return Elog::tagTerm($tag);
+    }
+
+    return $this->getTerm($tag);
+  }
+
 
   /**
    * Specify a single logbook to query
