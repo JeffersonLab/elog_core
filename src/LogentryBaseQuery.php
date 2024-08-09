@@ -29,14 +29,11 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
    */
   public array $users = [];       // [uid => name]
 
-
   /**
    * Pagination limit
    * TODO - move to module settings
    */
-  public int $entriesPerPage = 2000;
-
-
+  public int $entriesPerPage = 100;
 
   /**
    * The date column used for sorting and filtering.
@@ -56,8 +53,7 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   /**
    * The state of the sticky flag
    */
-  public bool $sticky = false;
-
+  public bool $sticky = FALSE;
 
   /**
    * Earliest entry date to include stored as unix timestamp
@@ -69,13 +65,16 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
    */
   public int $endDate;
 
+  /**
+   * String to use to search title, body, author name, etc.
+   */
+  public string $searchString = '';
 
   /**
    * Subtracted from end_date to set default start_date.
    * TODO - move to module settings
    */
   public $defaultDays = 30;
-
 
   /**
    * Constructs a LogentryQuery object.
@@ -84,21 +83,20 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     $this->setDefaultDates();
   }
 
-  public function setDefaultDates(){
+  public function setDefaultDates() {
     $this->endDate = $this->defaultEndDate();
     $this->startDate = $this->defaultStartDate();
   }
 
   public function defaultEndDate() {
     $d = getdate(); //current date/time
-    return mktime(24,0,0,$d['mon'],$d['mday'],$d['year']);
+    return mktime(24, 0, 0, $d['mon'], $d['mday'], $d['year']);   // 24th hour of today
   }
 
   public function defaultStartDate() {
     $d = getdate(); //current date/time
-    return mktime(0,0,0,$d['mon'],$d['mday'] - $this->defaultDays,$d['year']);
+    return mktime(0, 0, 0, $d['mon'], $d['mday'] - $this->defaultDays, $d['year']);
   }
-
 
   /**
    * Instantiate from HTTP Request parameters.
@@ -110,24 +108,20 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     return $query;
   }
 
-
-
-
-
-
-
   /**
    * Add a logbook to our filters
    */
-  public function addLogbook(Term | int | string $book) {
+  public function addLogbook(Term|int|string $book) {
     if (is_string($book)) {
       $term = Elog::logbookTerm($book);
-    }else{
+    }
+    else {
       $term = $this->getTerm($book);
     }
     if ($term) {
       $this->logbooks[$term->id()] = $term->getName();
-    }else{
+    }
+    else {
       throw new \Exception('Logbook term was not found');
     }
   }
@@ -135,10 +129,11 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   /**
    * Exclude a logbook from the results
    */
-  public function excludeLogbook(Term | int | string $book) {
+  public function excludeLogbook(Term|int|string $book) {
     if ($term = $this->getLogbookTerm($book)) {
       $this->excludeLogbooks[$term->id()] = $term->getName();
-    }else{
+    }
+    else {
       throw new \Exception('Logbook term was not found');
     }
   }
@@ -146,16 +141,16 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   /**
    * Exclude a tag from the results
    */
-  public function excludeTag(Term | int | string $tag) {
+  public function excludeTag(Term|int|string $tag) {
     if ($term = $this->getTagTerm($tag)) {
       $this->excludeTags[$term->id()] = $term->getName();
-    }else{
+    }
+    else {
       throw new \Exception('Tag term was not found');
     }
   }
 
-
-  protected function getLogbookTerm(Term | int | string $book) {
+  protected function getLogbookTerm(Term|int|string $book) {
     if (is_string($book)) {
       return Elog::logbookTerm($book);
     }
@@ -163,7 +158,7 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     return $this->getTerm($book);
   }
 
-  protected function getTagTerm(Term | int | string $tag) {
+  protected function getTagTerm(Term|int|string $tag) {
     if (is_string($tag)) {
       return Elog::tagTerm($tag);
     }
@@ -174,7 +169,7 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   /**
    * Specify a single user to filter the query
    */
-  public function setUser(User | int | string $user) {
+  public function setUser(User|int|string $user): void {
     $this->users = [];
     $this->addUser($user);
   }
@@ -182,7 +177,7 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   /**
    * Specify a single logbook to query
    */
-  public function setLogbook(Term | int | string $book) {
+  public function setLogbook(Term|int|string $book): void {
     $this->logbooks = [];
     $this->addLogbook($book);
   }
@@ -190,23 +185,32 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   /**
    * Specify a single tag to query
    */
-  public function setTag(Term | int | string $tag) {
+  public function setTag(Term|int|string $tag): void {
     $this->tags = [];
     $this->addTag($tag);
   }
 
   /**
+   * Set the entries per page limit.
+   */
+  public function setLimit(int $limit): void {
+    $this->entriesPerPage = $limit;
+  }
+
+  /**
    * Add a tag to our filters
    */
-  public function addTag(Term | int | string $tag) {
+  public function addTag(Term|int|string $tag): void {
     if (is_string($tag)) {
       $term = Elog::tagTerm($tag);
-    }else{
+    }
+    else {
       $term = $this->getTerm($tag);
     }
     if ($term) {
       $this->tags[$term->id()] = $term->getName();
-    }else{
+    }
+    else {
       throw new \Exception('Tag term was not found');
     }
   }
@@ -218,7 +222,7 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     if (is_numeric($term)) {    // assume tid
       return Term::load($term);
     }
-    return null;
+    return NULL;
   }
 
   /**
@@ -226,33 +230,53 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
    *
    * A string argument is assumed to be a username value.
    */
-  public function addUser(User | int | string $key) {
+  public function addUser(User|int|string $key) {
     if (is_string($key) || is_int($key)) {
       $user = Elog::getUser($key);
-    }else{
+    }
+    else {
       $user = $key;
     }
     if ($user) {
       $this->users[$user->id()] = $user->getAccountName();
-    }else{
+    }
+    else {
       throw new \Exception('User not found');
     }
   }
 
   /**
    * Use parameters from an HTTP Request to set query conditions.
+   *
+   * The following parameters are recognized from the Drupal 7 logbooks filter
+   * form:
+   *
+   *  start_date = string acceptable to strtotime function
+   *  end_date = string acceptable to strtotime function
+   *  logbooks[] = logbooks taxonomy term ids or strings
+   *  tags[] = tags taxonomy term ids or strings
+   *  search_str = string
+   *  entries_per_page = integer
+   *
+   * Note that the logbooks and tags use the php square brackets convention to
+   * accept an array of values.
    */
   public function applyRequest(Request $request): void {
     $this->setStartDate($request->get('start_date'));
     $this->setEndDate($request->get('end_date'));
-    if ($request->get('logbooks')){
+    if ($request->get('logbooks')) {
       $this->setLogbooks($request->get('logbooks'));
     }
-    if ($request->get('tags')){
+    if ($request->get('tags')) {
       $this->setTags($request->get('tags'));
     }
+    if ($request->get('search_str')){
+      $this->searchString = $request->get('search_str');
+    }
+    if ($request->get('entries_per_page')){
+      $this->entriesPerPage = $request->get('entries_per_page');
+    }
   }
-
 
   /**
    * Sets a start (min) date for query results
@@ -263,23 +287,27 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
    */
   public function setStartDate($date) {
     //TODO refactor this d7 code to use Carbon?
-    if (is_numeric($date)){
+    if (is_numeric($date)) {
       $this->startDate = $date;
-    }elseif (is_string($date) && $date != ''){
+    }
+    elseif (is_string($date) && $date != '') {
       $this->startDate = strtotime($date);
-    }else if (is_array($date)){
-      if (array_key_exists('date', $date) && array_key_exists('time', $date)){
-        if ($date['date']){
-          if (! $date['time']){
-            $date['time'] = '00:00';
+    }
+    else {
+      if (is_array($date)) {
+        if (array_key_exists('date', $date) && array_key_exists('time', $date)) {
+          if ($date['date']) {
+            if (!$date['time']) {
+              $date['time'] = '00:00';
+            }
+            $this->startDate = strtotime(sprintf("%s %s", $date['date'], $date['time']));
           }
-          $this->startDate = strtotime(sprintf("%s %s", $date['date'], $date['time']));
         }
       }
-    }else{
-      $this->setStartDate($this->autoStartDate($this->endDate));
+      else {
+        $this->setStartDate($this->autoStartDate($this->endDate));
+      }
     }
-
   }
 
   /**
@@ -289,28 +317,31 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
    *   string: parsed by strtotime
    *   array: ['date'=>str, 'time'=>str]
    */
-  public function setEndDate($date){
+  public function setEndDate($date) {
     //TODO refactor this d7 code to use Carbon?
     //TODO refactor out commonality with set_start_date
-    if (is_numeric($date)){
+    if (is_numeric($date)) {
       $this->endDate = $date;
-    }elseif (is_string($date)){
+    }
+    elseif (is_string($date)) {
       $this->endDate = strtotime($date);
-    }elseif (is_array($date)){
-      if (array_key_exists('date', $date) && array_key_exists('time', $date)){
+    }
+    elseif (is_array($date)) {
+      if (array_key_exists('date', $date) && array_key_exists('time', $date)) {
         $this->endDate = strtotime(sprintf("%s %s", $date['date'], $date['time']));
       }
     }
     // Force the start date to be before end date.
-    if ($this->endDate <= $this->startDate){
+    if ($this->endDate <= $this->startDate) {
       $this->setStartDate($this->autoStartDate($this->endDate));
     }
   }
 
-  public function setLogbooks(string | array $logbooks) {
-    if (is_string($logbooks)){
+  public function setLogbooks(string|int|array $logbooks) {
+    if (is_string($logbooks) || is_int($logbooks)) {
       $this->setLogbook($logbooks);
-    }else{
+    }
+    else {
       $this->logbooks = [];
       foreach ($logbooks as $logbook) {
         $this->addLogbook($logbook);
@@ -318,10 +349,11 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     }
   }
 
-  public function setTags(string | array $tags) {
-    if (is_string($tags)){
+  public function setTags(string|array $tags) {
+    if (is_string($tags)) {
       $this->setTag($tags);
-    }else{
+    }
+    else {
       $this->tags = [];
       foreach ($tags as $tag) {
         $this->addTag($tag);
@@ -329,31 +361,24 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     }
   }
 
-  protected function autoStartDate($end_date){
+  protected function autoStartDate($endDate) {
     $n = $this->defaultDays;
-    $start_exact = strtotime("-$n days", $end_date);
-    $start_midnight = strtotime(date('Y-m-d 00:00', $start_exact));
-    return $start_midnight;
+    $startExact = strtotime("-$n days", $endDate);
+    $startMidnight = strtotime(date('Y-m-d 00:00', $startExact));
+    return $startMidnight;
   }
 
-  /**
-   * Sets the pagination limit
-   */
-  protected function setPager() {
-    if ($this->entriesPerPage > 0){
-      $this->query->pager($this->entriesPerPage);
-    }
-  }
+
 
   /**
    * Obtain query results as array of version and node ids [vid => nid]
    */
-  abstract function resultIds() : array;
+  abstract function resultIds(): array;
 
   /**
    * Obtain query results as array of logentry Nodes
    */
-  public function resultNodes() : array {
+  public function resultNodes(): array {
     return Node::loadMultiple($this->resultIds());
   }
 

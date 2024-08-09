@@ -72,6 +72,7 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
     $this->checkTagQueries();
     $this->checkExcludeTags();
     $this->checkUserQueries();
+    $this->checkPageLimit();
   }
 
   abstract function newLogentryQuery(): LogEntryQueryInterface;
@@ -289,6 +290,16 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
     // Also include third entry authored by user 2
     $query->addUser('User2');
     $this->assertCount(3, $query->resultNodes());
-
   }
+
+  public function checkPageLimit() {
+    $query = $this->newLogentryQuery();
+    $query->setStartDate('2023-08-01');
+    $query->setEndDate('2023-09-15');
+    foreach ([1,2,3] as $limit){
+      $query->setLimit($limit);
+      $this->assertCount($limit, $query->resultNodes());
+    }
+  }
+
   }

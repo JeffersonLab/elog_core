@@ -2,6 +2,7 @@
 
 namespace Drupal\elog_core;
 
+use Drupal\Core\Database\Query\PagerSelectExtender;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 
@@ -19,9 +20,7 @@ class LogentrySqlQuery extends LogentryBaseQuery {
    */
   public function query(){
 
-    $this->query = \Drupal::database()
-      ->select('node', 'n');    // Don't use a pager
-    $this->query->fields('n');
+    $this->query = $this->baseQuery();
     $this->query->join('node_field_revision','nfr','n.nid = nfr.nid and n.vid = nfr.vid');
     $this->query->addField('nfr','vid','vid');
     $this->query->condition('nfr.status', 0, '>');  //published
@@ -168,6 +167,20 @@ class LogentrySqlQuery extends LogentryBaseQuery {
       $items[$item->vid] = $item->nid;
     }
     return $items;
+  }
+
+  /**
+   * Get the base query with or without a Pager Extender.
+   */
+  protected function baseQuery(): SelectInterface {
+    $query = \Drupal::database()
+      ->select('node', 'n')
+      ->fields('n');
+    if ($this->entriesPerPage > 0) {
+      $query = $query->extend(PagerSelectExtender::class)
+        ->limit($this->entriesPerPage);
+    }
+    return $query;
   }
 
   public function __toString(): string {

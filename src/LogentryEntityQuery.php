@@ -78,6 +78,15 @@ class LogentryEntityQuery extends LogentryBaseQuery {
     }
   }
 
+  /**
+   * Sets the pagination limit
+   */
+  protected function setPager() {
+    if ($this->entriesPerPage > 0) {
+      $this->query->pager($this->entriesPerPage);
+    }
+  }
+
   public function __toString(): string {
     return $this->query()->__toString();
   }
