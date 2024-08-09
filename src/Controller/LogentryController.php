@@ -17,10 +17,10 @@ class LogentryController extends ControllerBase {
     //$query = LogentryEntityQuery::fromRequest($request);
     $query = LogentrySqlQuery::fromRequest($request);
     $query->setLogbook($logbook);
-    dpm($query->__toString());
     $entries = $query->resultNodes();
+    dpm($query->__toString());
     $tabulator = new LogentryTabulator($entries);
-    $tabulator->groupBy='SHIFT';
+    $tabulator->groupBy = $request->get('groupBy', 'SHIFT');
     return $tabulator->table();
   }
 
@@ -31,11 +31,12 @@ class LogentryController extends ControllerBase {
     //$query = LogentryEntityQuery::fromRequest($request);
     $query = LogentrySqlQuery::fromRequest($request);
     $query->setTag($tag);
-    dpm($query->__toString());
     $entries = $query->resultNodes();
+    dpm($query->__toString());
     $tabulator = new LogentryTabulator($entries);
-    $tabulator->groupBy='SHIFT';
+    $tabulator->groupBy = $request->get('groupBy', 'SHIFT');
     return $tabulator->table();
+
   }
 
   /**
@@ -44,14 +45,10 @@ class LogentryController extends ControllerBase {
   public function entries(Request $request) {
     dpm($this->getLogger('elog'));
     $query = LogentryEntityQuery::fromRequest($request);
-
-    dpm(date('Y-m-d',$query->startDate));
-    dpm(date('Y-m-d',$query->endDate));
-    $query->excludeLogbook('ELOG');
-
-    dpm(count($query->resultIds()));
     $entries = $query->resultNodes();
+    dpm($query->__toString());
     $tabulator = new LogentryTabulator($entries);
+    $tabulator->groupBy = $request->get('groupBy', 'SHIFT');
     return $tabulator->table();
   }
 
