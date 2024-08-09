@@ -19,12 +19,12 @@ class LogentryEntityQuery extends LogentryBaseQuery {
     $this->query = \Drupal::entityQuery('node')
       ->condition('type', 'logentry')
       ->accessCheck(FALSE)
-      ->sort('created', 'DESC')
       ->condition($this->tableDate,[$this->startDate, $this->endDate], 'BETWEEN');
 
     $this->applyUserConditions();
     $this->applyLogbookConditions();
     $this->applyTagConditions();
+    $this->applySorting();
     $this->setPager();
     return $this->query;
   }
@@ -85,6 +85,20 @@ class LogentryEntityQuery extends LogentryBaseQuery {
     if ($this->entriesPerPage > 0) {
       $this->query->pager($this->entriesPerPage);
     }
+  }
+
+  /**
+   * Get database column to use for sorting.
+   */
+  protected function orderByColumn() {
+    if (strtolower($this->sortField) == 'lognumber'){
+      return 'field_lognumber';
+    }
+    return parent::orderByColumn();
+  }
+
+  protected function applySorting() {
+    $this->query->sort($this->orderByColumn(), $this->sortDirection);
   }
 
   public function __toString(): string {

@@ -74,7 +74,18 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
    * Subtracted from end_date to set default start_date.
    * TODO - move to module settings
    */
-  public $defaultDays = 30;
+  public int $defaultDays = 30;
+
+  /**
+   * What database column will be used for sorting
+   */
+  public string $sortField = 'date';
+
+  /**
+   * Should entries be sorted asc or desc
+   */
+  public string $sortDirection = 'desc';
+
 
   /**
    * Constructs a LogentryQuery object.
@@ -257,6 +268,8 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
    *  tags[] = tags taxonomy term ids or strings
    *  search_str = string
    *  entries_per_page = integer
+   *  sort = asc or desc
+   *  order = database column to sort by
    *
    * Note that the logbooks and tags use the php square brackets convention to
    * accept an array of values.
@@ -276,6 +289,13 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     if ($request->get('entries_per_page')){
       $this->entriesPerPage = $request->get('entries_per_page');
     }
+    if ($request->get('order')){
+      $this->sortField = $request->get('order');
+    }
+    if ($request->get('sort')){
+      $this->sortDirection = $request->get('sort');
+    }
+
   }
 
   /**
@@ -368,7 +388,17 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
     return $startMidnight;
   }
 
-
+  /**
+   * Get database column to use for sorting.
+   */
+  protected function orderByColumn() {
+    switch (strtolower($this->sortField)) {
+      case 'title' : return 'title';
+      case 'lognumber': return 'lognumber';
+      case 'date':
+      default: return $this->tableDate;
+    }
+  }
 
   /**
    * Obtain query results as array of version and node ids [vid => nid]

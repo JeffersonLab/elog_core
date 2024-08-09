@@ -72,6 +72,7 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
     $this->checkTagQueries();
     $this->checkExcludeTags();
     $this->checkUserQueries();
+    $this->checkSorting();
     $this->checkPageLimit();
   }
 
@@ -300,6 +301,25 @@ abstract class LogentryQueryTestBase  extends KernelTestBase {
       $query->setLimit($limit);
       $this->assertCount($limit, $query->resultNodes());
     }
+  }
+
+  protected function checkSorting() {
+    $query = $this->newLogentryQuery();
+    $query->setStartDate('2023-08-01');
+    $query->setEndDate('2023-09-15');
+    $query->sortField = 'title';
+    $query->sortDirection = 'desc';
+    $nodes = $query->resultNodes();
+    $this->assertEquals('Entry 3', array_values($nodes)[0]->getTitle());
+    $this->assertEquals('Entry 1', array_values($nodes)[2]->getTitle());
+
+    $query->sortField = 'title';
+    $query->sortDirection = 'asc';
+    $nodes = $query->resultNodes();
+    $this->assertEquals('Entry 1', array_values($nodes)[0]->getTitle());
+    $this->assertEquals('Entry 3', array_values($nodes)[2]->getTitle());
+
+
   }
 
   }

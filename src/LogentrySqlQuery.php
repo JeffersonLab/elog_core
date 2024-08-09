@@ -25,6 +25,10 @@ class LogentrySqlQuery extends LogentryBaseQuery {
     $this->query->addField('nfr','vid','vid');
     $this->query->condition('nfr.status', 0, '>');  //published
 
+    // Must join the lognumber table in order to have lognumber available for sorting
+    $this->query->join('node__field_lognumber','nfln','n.nid = nfln.entity_id');
+    $this->query->addField('nfln','field_lognumber_value','lognumber');
+
     if (! empty($this->users)){
       $this->query->condition('nfr.uid', array_keys($this->users), 'IN');
     }
@@ -153,10 +157,16 @@ class LogentrySqlQuery extends LogentryBaseQuery {
       $this->query->condition('n.nid', $subquery, 'NOT IN');
     }
 
-    //    $this->query->orderBy($this->sort_field, $this->sort_direction);
+    $this->applySorting();
 
     return $this->query;
   }
+
+  protected function applySorting() {
+    $this->query->orderBy($this->orderByColumn(), $this->sortDirection);
+  }
+
+
 
   /**
    * Obtain query results as an array of numeric ids
