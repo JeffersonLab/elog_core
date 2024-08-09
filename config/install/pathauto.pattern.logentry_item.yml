@@ -6,7 +6,7 @@ dependencies:
 id: logentry_item
 label: 'Logentry Item'
 type: 'canonical_entities:node'
-pattern: '/logentry/[node:field_lognumber:value]'
+pattern: '/entry/[node:field_lognumber:value]'
 selection_criteria:
   589aa043-1648-4199-8b7f-fd030db4ef1b:
     id: 'entity_bundle:node'
