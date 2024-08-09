@@ -140,6 +140,11 @@ class LogentryTabulator {
         ],
       ];
     }
+
+    $output['pager'] = array(
+      '#type' => 'pager'
+    );
+
     return $output;
   }
 
