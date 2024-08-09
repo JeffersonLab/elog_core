@@ -4,6 +4,7 @@ namespace Drupal\elog_core;
 
 use Drupal\Core\Url;
 use Drupal\taxonomy\Entity\Term;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Turn list of logentries into a Drupal Render Array table representation.
@@ -56,26 +57,37 @@ class LogentryTabulator {
    * TODO theming
    */
   public function table(): array {
-      // Without grouping return render array of a single flat table
-      if ($this->groupBy == 'NONE'){
-        return $this->tableOfEntries($this->entries);
-      }
+    // Without grouping return render array of a single flat table
+    if ($this->groupBy == 'NONE') {
+      $output = $this->tableOfEntries($this->entries);
+    }
+    else {
       // When grouping is in effect return a render array containing multiple tables.
-      $entries = current($this->byShift($this->entries));
-      if ($entries){
-        return $this->tableOfEntries($entries);
+      foreach ($this->byShift($this->entries) as $heading => $entries) {
+        $output[] = $this->tableOfEntries($entries, $heading);
       }
-      return $this->emptyElement();
+    }
+    $output['pager'] = [
+      '#type' => 'pager',
+    ];
+    return $output;
   }
 
-  protected function tableOfEntries(array $entries): array {
+  protected function tableOfEntries(array $entries, string $heading = ''): array {
     if (empty($entries)) {
       return $this->emptyElement();
     }
-    $output = [
-      'entries' => [
+    $output = [];
+    if ($heading) {
+      $output['heading'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'h2',
+        '#value' => $heading,
+      ];
+    }
+    $output['entries'] =
+      [
         '#theme' => 'table',
-        '#caption' => $this->caption,
         '#attributes' => ['class' => 'logbook-listing'],
         // TODO make the columns dynamic
         // TODO flags column (comments, needs attention, attachments)
@@ -99,9 +111,7 @@ class LogentryTabulator {
             'data' => 'Title',
           ],
         ],
-      ],
-
-    ];
+      ];
     $output['entries']['#rows'] = [];
     foreach ($entries as $entry) {
       $output['entries']['#rows'][]['data'] = [
@@ -141,10 +151,6 @@ class LogentryTabulator {
       ];
     }
 
-    $output['pager'] = array(
-      '#type' => 'pager'
-    );
-
     return $output;
   }
 
@@ -155,6 +161,7 @@ class LogentryTabulator {
       '#value' => t('No entries'),
     ];
   }
+
   /**
    * The url to a logentry node using its canonical path.
    */
