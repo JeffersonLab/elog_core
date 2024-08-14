@@ -2,6 +2,7 @@
 
 namespace Drupal\elog_core;
 
+use Drupal\Core\Url;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\user\Entity\User;
 
@@ -56,5 +57,26 @@ class Elog {
     }
     $user = User::load(current($uids));
     return $user;    // term names are unique in a vocab so current == only
+  }
+
+  /**
+   * The url to a logentry node using its canonical path.
+   */
+  protected static function nodeUrl($nid) {
+    return Url::fromRoute('entity.node.canonical', [
+      'node' => $nid,
+    ])->setAbsolute()->toString();
+  }
+
+  public static function nidFromLognumber(int $lognumber) {
+    $query = \Drupal::entityQuery('node')
+      ->condition('type', 'logentry')
+      ->accessCheck(FALSE)
+      ->condition('field_lognumber.value', $lognumber);
+    $nids = $query->execute();
+    if (empty($nids)) {
+      return NULL;
+    }
+    return current($nids);
   }
 }
