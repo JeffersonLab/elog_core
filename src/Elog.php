@@ -62,7 +62,7 @@ class Elog {
   /**
    * The url to a logentry node using its canonical path.
    */
-  protected static function nodeUrl($nid) {
+  public static function nodeUrl($nid) {
     return Url::fromRoute('entity.node.canonical', [
       'node' => $nid,
     ])->setAbsolute()->toString();
