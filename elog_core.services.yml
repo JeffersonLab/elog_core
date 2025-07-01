@@ -3,3 +3,11 @@ services:
     class: Drupal\elog_core\LogNumberService
     arguments:
       - '@logger.factory'
+  logentry_query.service:
+    class: Drupal\elog_core\LogentryQuery
+
+#  elog_core.route_subscriber:
+#    class: Drupal\elog_core\Routing\RouteSubscriber
+#    tags:
+#      - { name: event_subscriber }
+
