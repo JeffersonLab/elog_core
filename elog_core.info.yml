@@ -1,4 +1,4 @@
-name: elog_core
+name: 'Elog Core'
 type: module
 description: Core Configuration required by Electronic Logbook Modules
 core_version_requirement: ^10
