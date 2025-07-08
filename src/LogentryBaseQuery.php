@@ -227,7 +227,7 @@ abstract class LogentryBaseQuery implements LogentryQueryInterface {
   }
 
   protected function getTerm(mixed $term) {
-    if (is_a(Term::class, $term)) {
+    if (is_a($term,Term::class)) {
       return $term;
     }
     if (is_numeric($term)) {    // assume tid
