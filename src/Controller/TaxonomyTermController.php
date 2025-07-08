@@ -2,34 +2,35 @@
 
 namespace Drupal\elog_core\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
+use Drupal;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\elog_core\LogentrySqlQuery;
 use Drupal\elog_core\LogentryTabulator;
-use Symfony\Component\HttpFoundation\Request;
+use Drupal\views\Routing\ViewPageController;
 
-class TaxonomyTermController extends ControllerBase{
+
+class TaxonomyTermController extends ViewPageController{
 
   /**
-   * Display the entries of a single logbook.
+   * Over-ride the display of taxonomy terms in the logbooks and tags vocabularies
+   * while letting the default behavior persist for other vocabularies.
+   *
+   * The site below was helpful for figuring out how to accomplish the task:
+   * @see https://wiki.cbeier.net/en/webworking/cms/drupal/drupal8/snippets/use_different_views_for_various_vocabularies
    */
-  public function handle(Request $request) {
+  public function handle($view_id, $display_id, RouteMatchInterface $route_match) {
 
     // If the vocabulary isn't tags or logbooks, we'll just let our
     // parent class handle it.
-    $term = $request->get('taxonomy_term');
+    $term = $route_match->getParameter('taxonomy_term');
     $vocabulary = $term->get('vid')->first()->target_id;
     if (! in_array($vocabulary, ['tags','logbooks'])) {
-      $listing['content'] = [
-        '#type' => 'markup',
-        '#markup' => "<p>{$vocabulary->get('name')->value}</p>",
-      ];
-
-      return $listing;
+      return parent::handle($view_id, $display_id, $route_match);
     }
 
-    dpm($request);
-    dpm($request->get('taxonomy_term'));
-
+    // We need the global request object so that we can extract additional
+    // url parameters that might apply to our query.
+    $request = Drupal::request();
     $query = LogentrySqlQuery::fromRequest($request);
 
     // Explicitly set the logbook or tag to match the taxonomy term
@@ -42,7 +43,7 @@ class TaxonomyTermController extends ControllerBase{
     }
 
     $entries = $query->resultNodes();
-    dpm($query->__toString());
+
     $tabulator = new LogentryTabulator($entries);
     $tabulator->groupBy = $request->get('groupBy', 'SHIFT');
     return $tabulator->table();

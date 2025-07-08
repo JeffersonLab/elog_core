@@ -6,8 +6,8 @@ services:
   logentry_query.service:
     class: Drupal\elog_core\LogentryQuery
 
-#  elog_core.route_subscriber:
-#    class: Drupal\elog_core\Routing\RouteSubscriber
-#    tags:
-#      - { name: event_subscriber }
+  elog_core.route_subscriber:
+    class: Drupal\elog_core\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
 
